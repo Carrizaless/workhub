@@ -1,0 +1,7 @@
+-- 008_seed_admin_user.sql
+--
+-- MANUAL STEP: After creating the first user via Supabase Dashboard:
+--   Authentication > Users > Add User (email + password)
+--
+-- Copy that user's UUID and run:
+-- UPDATE public.users SET role = 'admin' WHERE id = '<ADMIN_USER_UUID>';
