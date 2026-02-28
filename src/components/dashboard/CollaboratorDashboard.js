@@ -22,34 +22,39 @@ export default function CollaboratorDashboard() {
     if (!user) return
 
     async function loadData() {
-      const [myTasksRes, availableRes, personalRes] = await Promise.all([
-        supabase
-          .from('tasks')
-          .select('*')
-          .eq('asignado_a', user.id)
-          .neq('estado', 'aprobada')
-          .order('updated_at', { ascending: false }),
-        supabase
-          .from('tasks')
-          .select('*')
-          .eq('estado', 'pendiente')
-          .is('asignado_a', null)
-          .order('created_at', { ascending: false })
-          .limit(5),
-        getCollaboratorStats(user.id),
-      ])
+      try {
+        const [myTasksRes, availableRes, personalRes] = await Promise.all([
+          supabase
+            .from('tasks')
+            .select('*')
+            .eq('asignado_a', user.id)
+            .neq('estado', 'aprobada')
+            .order('updated_at', { ascending: false }),
+          supabase
+            .from('tasks')
+            .select('*')
+            .eq('estado', 'pendiente')
+            .is('asignado_a', null)
+            .order('created_at', { ascending: false })
+            .limit(5),
+          getCollaboratorStats(user.id),
+        ])
 
-      const tasks = myTasksRes.data || []
-      setMyTasks(tasks)
-      setAvailableTasks(availableRes.data || [])
+        const tasks = myTasksRes.data || []
+        setMyTasks(tasks)
+        setAvailableTasks(availableRes.data || [])
 
-      setStats({
-        activas: tasks.length,
-        disponibles: (availableRes.data || []).length,
-        saldo: profile?.saldo_actual || 0,
-      })
+        setStats({
+          activas: tasks.length,
+          disponibles: (availableRes.data || []).length,
+          saldo: profile?.saldo_actual || 0,
+        })
 
-      if (!personalRes.error) setPersonalStats(personalRes.data)
+        if (!personalRes.error) setPersonalStats(personalRes.data)
+      } catch (e) {
+        console.error('Error loading dashboard data:', e)
+        setStats({ activas: 0, disponibles: 0, saldo: profile?.saldo_actual || 0 })
+      }
     }
     loadData()
   }, [user, profile])

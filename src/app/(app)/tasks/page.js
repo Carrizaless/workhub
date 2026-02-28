@@ -68,25 +68,38 @@ export default function TasksPage() {
 
   async function loadAdminTasks(p) {
     setLoading(true)
-    const result = await getTasks({
-      page: p,
-      pageSize: PAGE_SIZE,
-      filter: filter === 'all' ? null : filter,
-    })
-    setTasks(result.data || [])
-    setTotalPages(result.totalPages || 1)
-    setPage(p)
-    setLoading(false)
+    try {
+      const result = await getTasks({
+        page: p,
+        pageSize: PAGE_SIZE,
+        filter: filter === 'all' ? null : filter,
+      })
+      setTasks(result?.data || [])
+      setTotalPages(result?.totalPages || 1)
+      setPage(p)
+    } catch (e) {
+      console.error('Error loading admin tasks:', e)
+      setTasks([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function loadCollaboratorTasks() {
     setLoading(true)
-    const { data } = await supabase
-      .from('tasks')
-      .select('*, asignado:users!asignado_a(id, nombre, email)')
-      .order('created_at', { ascending: false })
-    setTasks(data || [])
-    setLoading(false)
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*, asignado:users!asignado_a(id, nombre, email)')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      setTasks(data || [])
+    } catch (e) {
+      console.error('Error loading collaborator tasks:', e)
+      setTasks([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   // ── Admin view: single list with filters + pagination ──────

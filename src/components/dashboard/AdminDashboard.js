@@ -15,17 +15,23 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function loadStats() {
-      const [statsRes, recentRes] = await Promise.all([
-        getAdminStats(),
-        supabase
-          .from('tasks')
-          .select('id, titulo, estado, precio, created_at')
-          .order('created_at', { ascending: false })
-          .limit(5),
-      ])
+      try {
+        const [statsRes, recentRes] = await Promise.all([
+          getAdminStats(),
+          supabase
+            .from('tasks')
+            .select('id, titulo, estado, precio, created_at')
+            .order('created_at', { ascending: false })
+            .limit(5),
+        ])
 
-      if (!statsRes.error) setStats(statsRes.data)
-      setRecentTasks(recentRes.data || [])
+        if (!statsRes.error) setStats(statsRes.data)
+        else setStats({ total: 0, byEstado: { pendiente: 0, en_revision: 0, aprobada: 0 }, totalPagado: 0, months: [], topColabs: [] })
+        setRecentTasks(recentRes.data || [])
+      } catch (e) {
+        console.error('Error loading admin stats:', e)
+        setStats({ total: 0, byEstado: { pendiente: 0, en_revision: 0, aprobada: 0 }, totalPagado: 0, months: [], topColabs: [] })
+      }
     }
     loadStats()
   }, [])
