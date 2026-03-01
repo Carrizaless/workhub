@@ -23,7 +23,7 @@ export async function getAdminStats() {
       supabase
         .from('transactions')
         .select('monto')
-        .eq('tipo', 'credito'),
+        .eq('tipo', 'pago_tarea'),
       // All collaborators with their approved tasks
       supabase
         .from('users')
@@ -121,7 +121,7 @@ export async function getCollaboratorStats(userId) {
         .from('transactions')
         .select('monto')
         .eq('usuario_id', userId)
-        .eq('tipo', 'credito'),
+        .eq('tipo', 'pago_tarea'),
     ])
 
     const tasks = tasksRes.data || []
