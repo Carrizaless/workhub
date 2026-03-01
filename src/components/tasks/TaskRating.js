@@ -3,16 +3,13 @@
 import { useState } from 'react'
 
 /**
- * Star rating component for approved tasks.
- * @param {{ value, onChange, readOnly }} props
- * - value: current rating (1-5 or null)
- * - onChange: callback(rating) — only called when readOnly=false
- * - readOnly: if true, just displays stars without interaction
+ * Star rating component.
+ * @param {{ value: number|null, onChange: (rating: number) => void, readOnly: boolean }} props
  */
 export default function TaskRating({ value = null, onChange, readOnly = false }) {
-  const [hovered, setHovered] = useState(0)
+  const [hovered, setHovered] = useState(null)
 
-  const display = hovered || value || 0
+  const displayed = hovered ?? value ?? 0
 
   return (
     <div className="flex items-center gap-0.5">
@@ -23,15 +20,15 @@ export default function TaskRating({ value = null, onChange, readOnly = false })
           disabled={readOnly}
           onClick={() => !readOnly && onChange?.(star)}
           onMouseEnter={() => !readOnly && setHovered(star)}
-          onMouseLeave={() => !readOnly && setHovered(0)}
-          className={`transition-colors ${
-            readOnly ? 'cursor-default' : 'cursor-pointer hover:scale-110 active:scale-95'
+          onMouseLeave={() => !readOnly && setHovered(null)}
+          className={`transition-colors focus:outline-none ${
+            readOnly ? 'cursor-default' : 'cursor-pointer'
           }`}
-          aria-label={`${star} estrellas`}
+          aria-label={`${star} estrella${star !== 1 ? 's' : ''}`}
         >
           <svg
             className={`h-5 w-5 transition-colors ${
-              star <= display
+              star <= displayed
                 ? 'text-yellow-400'
                 : 'text-gray-200'
             }`}
@@ -42,8 +39,8 @@ export default function TaskRating({ value = null, onChange, readOnly = false })
           </svg>
         </button>
       ))}
-      {value && (
-        <span className="ml-1 text-xs text-gray-400">{value}/5</span>
+      {value !== null && value !== undefined && (
+        <span className="ml-1.5 text-xs text-gray-500">{value}/5</span>
       )}
     </div>
   )

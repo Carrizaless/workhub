@@ -1,65 +1,78 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns'
+import { es } from 'date-fns/locale'
 
-const CONN_ERROR = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.'
-
+/**
+ * Admin stats:
+ * - total tasks
+ * - tasks by estado
+ * - total paid (SUM of transactions.monto where tipo='credito')
+ * - approved tasks per month (last 6 months) → for chart
+ * - top 3 collaborators by approved tasks
+ */
 export async function getAdminStats() {
-  const supabase = await createClient()
-
   try {
-    // Task counts by estado
-    const { data: tasks } = await supabase
-      .from('tasks')
-      .select('id, estado, precio, asignado_a, created_at, updated_at')
+    const supabase = await createClient()
 
-    // Total paid out (sum of approved task prices)
-    const totalPagado = (tasks || [])
-      .filter((t) => t.estado === 'aprobada')
-      .reduce((sum, t) => sum + (t.precio || 0), 0)
+    const [tasksRes, txRes, collabsRes] = await Promise.all([
+      // All tasks to count by estado
+      supabase.from('tasks').select('id, estado, created_at'),
+      // Sum of payments
+      supabase
+        .from('transactions')
+        .select('monto')
+        .eq('tipo', 'credito'),
+      // All collaborators with their approved tasks
+      supabase
+        .from('users')
+        .select('id, nombre, email, tasks!asignado_a(id, estado, created_at)')
+        .eq('role', 'colaborador'),
+    ])
 
-    const byEstado = {
-      pendiente: 0,
-      aceptada: 0,
-      en_revision: 0,
-      en_correccion: 0,
-      aprobada: 0,
-    }
-    ;(tasks || []).forEach((t) => {
-      if (byEstado[t.estado] !== undefined) byEstado[t.estado]++
+    const tasks = tasksRes.data || []
+    const transactions = txRes.data || []
+    const collabs = collabsRes.data || []
+
+    // Count by estado
+    const byEstado = tasks.reduce((acc, t) => {
+      acc[t.estado] = (acc[t.estado] || 0) + 1
+      return acc
+    }, {})
+
+    // Total paid
+    const totalPagado = transactions.reduce((sum, tx) => sum + (tx.monto || 0), 0)
+
+    // Approved tasks per month (last 6 months)
+    const now = new Date()
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const d = subMonths(now, 5 - i)
+      return {
+        year: d.getFullYear(),
+        month: d.getMonth() + 1,
+        label: format(d, 'MMM', { locale: es }),
+        start: startOfMonth(d).toISOString(),
+        end: endOfMonth(d).toISOString(),
+        count: 0,
+      }
     })
 
-    // Tareas aprobadas por mes (últimos 6 meses)
-    const now = new Date()
-    const months = []
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      months.push({
-        label: d.toLocaleDateString('es-CO', { month: 'short' }),
-        year: d.getFullYear(),
-        month: d.getMonth(),
-        count: 0,
-      })
+    const approvedTasks = tasks.filter((t) => t.estado === 'aprobada')
+    for (const t of approvedTasks) {
+      const d = new Date(t.created_at)
+      const m = months.find(
+        (m) => m.year === d.getFullYear() && m.month === d.getMonth() + 1
+      )
+      if (m) m.count++
     }
-    ;(tasks || [])
-      .filter((t) => t.estado === 'aprobada' && t.updated_at)
-      .forEach((t) => {
-        const d = new Date(t.updated_at)
-        const m = months.find(
-          (mo) => mo.year === d.getFullYear() && mo.month === d.getMonth()
-        )
-        if (m) m.count++
-      })
 
-    // Top 3 colaboradores (más tareas aprobadas)
-    const { data: collabs } = await supabase
-      .from('users')
-      .select('id, nombre, email, tasks:tasks!asignado_a(id, estado)')
-      .eq('role', 'colaborador')
-
-    const topColabs = (collabs || [])
+    // Top collaborators
+    const topColabs = collabs
       .map((c) => ({
-        ...c,
+        id: c.id,
+        nombre: c.nombre,
+        email: c.email,
         completadas: (c.tasks || []).filter((t) => t.estado === 'aprobada').length,
       }))
       .sort((a, b) => b.completadas - a.completadas)
@@ -67,42 +80,70 @@ export async function getAdminStats() {
 
     return {
       data: {
-        total: (tasks || []).length,
-        byEstado,
+        total: tasks.length,
+        byEstado: {
+          pendiente: byEstado.pendiente || 0,
+          aceptada: byEstado.aceptada || 0,
+          en_revision: byEstado.en_revision || 0,
+          en_correccion: byEstado.en_correccion || 0,
+          aprobada: byEstado.aprobada || 0,
+        },
         totalPagado,
         months,
         topColabs,
       },
     }
   } catch (e) {
-    return { error: CONN_ERROR }
+    console.error('getAdminStats error:', e)
+    return { error: 'Error al cargar estadísticas' }
   }
 }
 
+/**
+ * Collaborator personal stats:
+ * - completadas (approved tasks assigned to them)
+ * - totalGanado (sum of their credit transactions)
+ * - avgRating (average of their rated approved tasks)
+ */
 export async function getCollaboratorStats(userId) {
-  const supabase = await createClient()
+  if (!userId) return { error: 'No userId' }
 
   try {
-    const { data: tasks } = await supabase
-      .from('tasks')
-      .select('id, estado, precio, calificacion')
-      .eq('asignado_a', userId)
+    const supabase = await createClient()
 
-    const completadas = (tasks || []).filter((t) => t.estado === 'aprobada').length
-    const activas = (tasks || []).filter((t) => t.estado !== 'aprobada').length
-    const totalGanado = (tasks || [])
-      .filter((t) => t.estado === 'aprobada')
-      .reduce((sum, t) => sum + (t.precio || 0), 0)
+    const [tasksRes, txRes] = await Promise.all([
+      supabase
+        .from('tasks')
+        .select('id, estado, calificacion')
+        .eq('asignado_a', userId)
+        .eq('estado', 'aprobada'),
+      supabase
+        .from('transactions')
+        .select('monto')
+        .eq('usuario_id', userId)
+        .eq('tipo', 'credito'),
+    ])
 
-    const ratedTasks = (tasks || []).filter((t) => t.estado === 'aprobada' && t.calificacion)
-    const avgRating = ratedTasks.length > 0
-      ? ratedTasks.reduce((sum, t) => sum + t.calificacion, 0) / ratedTasks.length
-      : null
+    const tasks = tasksRes.data || []
+    const transactions = txRes.data || []
+
+    const totalGanado = transactions.reduce((sum, tx) => sum + (tx.monto || 0), 0)
+
+    const ratedTasks = tasks.filter((t) => t.calificacion !== null && t.calificacion !== undefined)
+    const avgRating =
+      ratedTasks.length > 0
+        ? ratedTasks.reduce((sum, t) => sum + t.calificacion, 0) / ratedTasks.length
+        : null
 
     return {
-      data: { completadas, activas, totalGanado, avgRating, ratingCount: ratedTasks.length },
+      data: {
+        completadas: tasks.length,
+        totalGanado,
+        avgRating,
+      },
     }
   } catch (e) {
-    return { error: CONN_ERROR }
+    console.error('getCollaboratorStats error:', e)
+    return { error: 'Error al cargar estadísticas' }
   }
 }
