@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { getAdminStats } from '@/actions/stats'
-import { createClient } from '@/lib/supabase/client'
 import StatsCard from './StatsCard'
 import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
@@ -12,43 +11,24 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
   const [recentTasks, setRecentTasks] = useState([])
   const [error, setError] = useState(null)
-  const supabase = createClient()
 
   const emptyStats = { total: 0, byEstado: { pendiente: 0, en_revision: 0, aprobada: 0 }, totalPagado: 0, months: [], topColabs: [] }
 
   useEffect(() => {
     async function loadStats() {
-      console.log('[DEBUG] AdminDashboard loadStats() called')
       try {
-        console.log('[DEBUG] 1. Starting getAdminStats()...')
-        const statsPromise = getAdminStats()
+        const statsRes = await getAdminStats()
 
-        console.log('[DEBUG] 2. Starting client-side tasks query...')
-        const recentPromise = supabase
-          .from('tasks')
-          .select('id, titulo, estado, precio, created_at')
-          .order('created_at', { ascending: false })
-          .limit(5)
-
-        console.log('[DEBUG] 3. Awaiting getAdminStats...')
-        const statsRes = await statsPromise
-        console.log('[DEBUG] 4. getAdminStats resolved:', JSON.stringify(statsRes)?.substring(0, 200))
-
-        console.log('[DEBUG] 5. Awaiting client tasks query...')
-        const recentRes = await recentPromise
-        console.log('[DEBUG] 6. Client tasks resolved:', JSON.stringify(recentRes)?.substring(0, 200))
-
-        if (recentRes.error) console.error('Recent tasks error:', recentRes.error.message)
-
-        if (!statsRes.error) setStats(statsRes.data)
-        else {
+        if (!statsRes.error) {
+          setStats(statsRes.data)
+          setRecentTasks(statsRes.data.recentTasks || [])
+        } else {
           console.error('Admin stats error:', statsRes.error)
           setError(statsRes.error)
           setStats(emptyStats)
         }
-        setRecentTasks(recentRes.data || [])
       } catch (e) {
-        console.error('[DEBUG] loadStats EXCEPTION:', e?.message, e)
+        console.error('Error loading admin stats:', e)
         setError(e?.message || 'Error al cargar estadísticas')
         setStats(emptyStats)
       }

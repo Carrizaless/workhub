@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { getCollaboratorStats } from '@/actions/stats'
+import { getCollaboratorDashboardData } from '@/actions/stats'
 import { useUser } from '@/contexts/UserContext'
 import StatsCard from './StatsCard'
 import { formatCurrency } from '@/lib/utils'
@@ -17,11 +16,9 @@ export default function CollaboratorDashboard() {
   const [myTasks, setMyTasks] = useState([])
   const [availableTasks, setAvailableTasks] = useState([])
   const [error, setError] = useState(null)
-  const supabase = createClient()
 
   useEffect(() => {
     if (!user) {
-      // No user available — show empty state instead of infinite skeleton
       setStats({ activas: 0, disponibles: 0, saldo: 0 })
       setError('No se pudo obtener la sesión del usuario.')
       return
@@ -29,37 +26,25 @@ export default function CollaboratorDashboard() {
 
     async function loadData() {
       try {
-        const [myTasksRes, availableRes, personalRes] = await Promise.all([
-          supabase
-            .from('tasks')
-            .select('*')
-            .eq('asignado_a', user.id)
-            .neq('estado', 'aprobada')
-            .order('updated_at', { ascending: false }),
-          supabase
-            .from('tasks')
-            .select('*')
-            .eq('estado', 'pendiente')
-            .is('asignado_a', null)
-            .order('created_at', { ascending: false })
-            .limit(5),
-          getCollaboratorStats(user.id),
-        ])
+        const res = await getCollaboratorDashboardData(user.id)
 
-        if (myTasksRes.error) console.error('Tasks query error:', myTasksRes.error.message)
-        if (availableRes.error) console.error('Available query error:', availableRes.error.message)
+        if (res.error) {
+          console.error('Dashboard data error:', res.error)
+          setError(res.error)
+          setStats({ activas: 0, disponibles: 0, saldo: profile?.saldo_actual || 0 })
+          return
+        }
 
-        const tasks = myTasksRes.data || []
+        const { myTasks: tasks, availableTasks: available, personalStats: pStats } = res.data
+
         setMyTasks(tasks)
-        setAvailableTasks(availableRes.data || [])
-
+        setAvailableTasks(available)
+        setPersonalStats(pStats)
         setStats({
           activas: tasks.length,
-          disponibles: (availableRes.data || []).length,
+          disponibles: available.length,
           saldo: profile?.saldo_actual || 0,
         })
-
-        if (!personalRes.error) setPersonalStats(personalRes.data)
       } catch (e) {
         console.error('Error loading dashboard data:', e)
         setError(e?.message || 'Error al cargar datos del dashboard')

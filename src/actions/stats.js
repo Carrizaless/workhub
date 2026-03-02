@@ -16,7 +16,7 @@ export async function getAdminStats() {
   try {
     const supabase = await createClient()
 
-    const [tasksRes, txRes, collabsRes] = await Promise.all([
+    const [tasksRes, txRes, collabsRes, recentRes] = await Promise.all([
       // All tasks to count by estado
       supabase.from('tasks').select('id, estado, created_at'),
       // Sum of payments
@@ -29,6 +29,12 @@ export async function getAdminStats() {
         .from('users')
         .select('id, nombre, email, tasks!asignado_a(id, estado, created_at)')
         .eq('role', 'colaborador'),
+      // Recent tasks for dashboard list
+      supabase
+        .from('tasks')
+        .select('id, titulo, estado, precio, created_at')
+        .order('created_at', { ascending: false })
+        .limit(5),
     ])
 
     const tasks = tasksRes.data || []
@@ -91,11 +97,73 @@ export async function getAdminStats() {
         totalPagado,
         months,
         topColabs,
+        recentTasks: recentRes.data || [],
       },
     }
   } catch (e) {
     console.error('getAdminStats error:', e)
     return { error: 'Error al cargar estadísticas' }
+  }
+}
+
+/**
+ * Collaborator dashboard data: active tasks, available tasks, personal stats
+ */
+export async function getCollaboratorDashboardData(userId) {
+  if (!userId) return { error: 'No userId' }
+
+  try {
+    const supabase = await createClient()
+
+    const [myTasksRes, availableRes, personalRes] = await Promise.all([
+      supabase
+        .from('tasks')
+        .select('*')
+        .eq('asignado_a', userId)
+        .neq('estado', 'aprobada')
+        .order('updated_at', { ascending: false }),
+      supabase
+        .from('tasks')
+        .select('*')
+        .eq('estado', 'pendiente')
+        .is('asignado_a', null)
+        .order('created_at', { ascending: false })
+        .limit(5),
+      // Personal stats inline
+      (async () => {
+        const [tasksRes, txRes] = await Promise.all([
+          supabase
+            .from('tasks')
+            .select('id, estado, calificacion')
+            .eq('asignado_a', userId)
+            .eq('estado', 'aprobada'),
+          supabase
+            .from('transactions')
+            .select('monto')
+            .eq('usuario_id', userId)
+            .eq('tipo', 'pago_tarea'),
+        ])
+        const tasks = tasksRes.data || []
+        const transactions = txRes.data || []
+        const totalGanado = transactions.reduce((sum, tx) => sum + (tx.monto || 0), 0)
+        const ratedTasks = tasks.filter((t) => t.calificacion !== null && t.calificacion !== undefined)
+        const avgRating = ratedTasks.length > 0
+          ? ratedTasks.reduce((sum, t) => sum + t.calificacion, 0) / ratedTasks.length
+          : null
+        return { completadas: tasks.length, totalGanado, avgRating }
+      })(),
+    ])
+
+    return {
+      data: {
+        myTasks: myTasksRes.data || [],
+        availableTasks: availableRes.data || [],
+        personalStats: personalRes,
+      },
+    }
+  } catch (e) {
+    console.error('getCollaboratorDashboardData error:', e)
+    return { error: 'Error al cargar datos del dashboard' }
   }
 }
 

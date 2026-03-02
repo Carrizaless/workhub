@@ -10,11 +10,9 @@ export function createClient() {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!url || !key) {
-    console.warn('[DEBUG] Supabase NOT configured — using no-op client. URL:', url ? 'present' : 'MISSING', 'KEY:', key ? 'present' : 'MISSING')
     return createNoOpClient()
   }
 
-  console.log('[DEBUG] Supabase client created with real credentials. URL:', url?.substring(0, 30) + '...')
   client = createBrowserClient(url, key)
   return client
 }

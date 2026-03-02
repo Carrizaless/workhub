@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
-import { getTasks } from '@/actions/tasks'
+import { getTasks, getAllTasks } from '@/actions/tasks'
 import TaskGrid from '@/components/tasks/TaskGrid'
 import TaskFilters from '@/components/tasks/TaskFilters'
 import Pagination from '@/components/ui/Pagination'
@@ -52,8 +51,6 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const supabase = createClient()
-
   useEffect(() => {
     if (!userLoading && isAdmin) {
       loadAdminTasks(1)
@@ -88,12 +85,9 @@ export default function TasksPage() {
   async function loadCollaboratorTasks() {
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*, asignado:users!asignado_a(id, nombre, email)')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      setTasks(data || [])
+      const result = await getAllTasks()
+      if (result.error) throw new Error(result.error)
+      setTasks(result.data || [])
     } catch (e) {
       console.error('Error loading collaborator tasks:', e)
       setTasks([])

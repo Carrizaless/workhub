@@ -214,6 +214,22 @@ export async function getTasks({ page = 1, pageSize = 12, filter = null, userId 
   }
 }
 
+export async function getAllTasks() {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*, asignado:users!asignado_a(id, nombre, email)')
+      .order('created_at', { ascending: false })
+
+    if (error) return { error: error.message }
+    return { data: data || [] }
+  } catch (e) {
+    return { error: CONN_ERROR }
+  }
+}
+
 export async function deleteTask(taskId) {
   const supabase = await createClient()
   const admin = createAdminClient()
