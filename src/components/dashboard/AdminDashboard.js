@@ -18,6 +18,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function loadStats() {
+      console.log('[DEBUG] AdminDashboard loadStats() called')
       try {
         const [statsRes, recentRes] = await Promise.all([
           getAdminStats(),
@@ -27,6 +28,9 @@ export default function AdminDashboard() {
             .order('created_at', { ascending: false })
             .limit(5),
         ])
+
+        console.log('[DEBUG] statsRes:', JSON.stringify(statsRes))
+        console.log('[DEBUG] recentRes:', JSON.stringify(recentRes))
 
         if (recentRes.error) console.error('Recent tasks error:', recentRes.error.message)
 
@@ -38,7 +42,7 @@ export default function AdminDashboard() {
         }
         setRecentTasks(recentRes.data || [])
       } catch (e) {
-        console.error('Error loading admin stats:', e)
+        console.error('[DEBUG] loadStats EXCEPTION:', e?.message, e)
         setError(e?.message || 'Error al cargar estadísticas')
         setStats(emptyStats)
       }
