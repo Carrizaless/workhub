@@ -1,73 +1,80 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-const isConfigured =
-  SUPABASE_URL && SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY
+let client = null
 
 export function createClient() {
-  if (!isConfigured) {
-    // Return a mock client that won't crash the app
-    return {
-      auth: {
-        getUser: async () => ({ data: { user: null }, error: null }),
-        getSession: async () => ({ data: { session: null }, error: null }),
-        signInWithPassword: async () => ({
-          error: { message: 'Supabase no esta configurado. Agrega las credenciales en .env.local' },
-        }),
-        signOut: async () => ({}),
-        onAuthStateChange: () => ({
-          data: { subscription: { unsubscribe: () => {} } },
-        }),
-      },
-      from: () => ({
-        select: () => ({
-          eq: () => ({
-            single: async () => ({ data: null, error: null }),
-            order: () => ({
-              limit: async () => ({ data: [], error: null }),
-            }),
-          }),
-          order: () => ({
-            limit: async () => ({ data: [], error: null }),
-          }),
-          neq: () => ({
-            order: () => ({ data: [], error: null }),
-          }),
-          is: () => ({
-            order: () => ({
-              limit: async () => ({ data: [], error: null }),
-            }),
-          }),
-        }),
-        insert: () => ({
-          select: () => ({
-            single: async () => ({ data: null, error: { message: 'Supabase no configurado' } }),
-          }),
-        }),
-        update: () => ({
-          eq: async () => ({ error: { message: 'Supabase no configurado' } }),
-        }),
-      }),
-      rpc: async () => ({
-        data: { success: false, error: 'Supabase no configurado' },
-        error: null,
-      }),
-      storage: {
-        from: () => ({
-          upload: async () => ({ error: { message: 'Supabase no configurado' } }),
-          createSignedUrl: async () => ({ error: { message: 'Supabase no configurado' } }),
-          createSignedUploadUrl: async () => ({ error: { message: 'Supabase no configurado' } }),
-          remove: async () => ({ error: { message: 'Supabase no configurado' } }),
-        }),
-      },
-      channel: () => ({
-        on: () => ({ subscribe: () => ({}) }),
-      }),
-      removeChannel: () => {},
-    }
+  // Reuse the same client instance (singleton)
+  if (client) return client
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !key) {
+    console.warn('Supabase not configured: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY missing')
+    // Return a no-op proxy that won't crash on any method chain
+    return createNoOpClient()
   }
 
-  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  client = createBrowserClient(url, key)
+  return client
+}
+
+/**
+ * Creates a proxy-based no-op client that handles ANY method chain
+ * without crashing. Every method returns the proxy itself (for chaining)
+ * or a safe default value for terminal methods.
+ */
+function createNoOpClient() {
+  const handler = {
+    get(target, prop) {
+      // Terminal async methods - return safe defaults
+      if (prop === 'then') return undefined // prevents treating proxy as Promise
+      if (prop === 'single') return async () => ({ data: null, error: null })
+      if (prop === 'limit') return async () => ({ data: [], error: null })
+      if (prop === 'insert') return () => createChainProxy()
+      if (prop === 'update') return () => createChainProxy()
+      if (prop === 'delete') return () => createChainProxy()
+      if (prop === 'upload') return async () => ({ error: { message: 'Supabase no configurado' } })
+      if (prop === 'remove') return async () => ({ error: { message: 'Supabase no configurado' } })
+      if (prop === 'createSignedUrl') return async () => ({ error: { message: 'Supabase no configurado' } })
+      if (prop === 'createSignedUploadUrl') return async () => ({ error: { message: 'Supabase no configurado' } })
+      if (prop === 'subscribe') return () => createChainProxy()
+      if (prop === 'unsubscribe') return () => {}
+      if (prop === 'removeChannel') return () => {}
+
+      // Auth methods
+      if (prop === 'auth') {
+        return {
+          getUser: async () => ({ data: { user: null }, error: null }),
+          getSession: async () => ({ data: { session: null }, error: null }),
+          signInWithPassword: async () => ({
+            error: { message: 'Supabase no configurado' },
+          }),
+          signOut: async () => ({}),
+          onAuthStateChange: () => ({
+            data: { subscription: { unsubscribe: () => {} } },
+          }),
+        }
+      }
+
+      // Storage
+      if (prop === 'storage') {
+        return { from: () => createChainProxy() }
+      }
+
+      // RPC
+      if (prop === 'rpc') {
+        return async () => ({ data: null, error: { message: 'Supabase no configurado' } })
+      }
+
+      // Everything else: return a function that returns a chainable proxy
+      return (..._args) => createChainProxy()
+    },
+  }
+
+  function createChainProxy() {
+    return new Proxy({}, handler)
+  }
+
+  return new Proxy({}, handler)
 }
