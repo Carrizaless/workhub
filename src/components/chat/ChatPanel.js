@@ -1,14 +1,16 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useUser } from '@/contexts/UserContext'
 import { useMessages } from '@/hooks/useMessages'
+import { getSignedUrl } from '@/actions/files'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
+import toast from 'react-hot-toast'
 
 export default function ChatPanel({ taskId = null, isSoporte = false, otherUserId = null }) {
   const { user } = useUser()
-  const { messages, loading, sendMessage } = useMessages({
+  const { messages, loading, uploading, sendMessage } = useMessages({
     taskId,
     isSoporte,
     otherUserId,
@@ -20,6 +22,20 @@ export default function ChatPanel({ taskId = null, isSoporte = false, otherUserI
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const handleDownload = useCallback(async (file) => {
+    try {
+      const result = await getSignedUrl(file.path)
+      if (result.error) {
+        toast.error('Error al descargar archivo')
+        return
+      }
+      // Open in new tab (triggers download for non-images, preview for images)
+      window.open(result.url, '_blank')
+    } catch {
+      toast.error('Error al descargar archivo')
+    }
+  }, [])
 
   if (loading) {
     return (
@@ -47,13 +63,14 @@ export default function ChatPanel({ taskId = null, isSoporte = false, otherUserI
             key={msg.id}
             message={msg}
             isOwn={msg.remitente_id === user?.id}
+            onDownload={handleDownload}
           />
         ))}
         <div ref={bottomRef} />
       </div>
 
       <div className="border-t border-gray-100 pt-3 mt-3">
-        <ChatInput onSend={sendMessage} disabled={!user} />
+        <ChatInput onSend={sendMessage} disabled={!user} uploading={uploading} />
       </div>
     </div>
   )

@@ -15,7 +15,7 @@ export async function getMessages({ taskId = null, isSoporte = false, otherUserI
 
     let query = supabase
       .from('messages')
-      .select('*, remitente:users!remitente_id(id, email, nombre, avatar_url)')
+      .select('*, archivos, remitente:users!remitente_id(id, email, nombre, avatar_url)')
       .order('created_at', { ascending: true })
 
     if (taskId) {
@@ -39,7 +39,7 @@ export async function getMessages({ taskId = null, isSoporte = false, otherUserI
   }
 }
 
-export async function sendMessageAction({ contenido, taskId = null, isSoporte = false, otherUserId = null }) {
+export async function sendMessageAction({ contenido, taskId = null, isSoporte = false, otherUserId = null, archivos = null }) {
   const supabase = await createClient()
 
   try {
@@ -49,11 +49,12 @@ export async function sendMessageAction({ contenido, taskId = null, isSoporte = 
     if (!user) return { error: 'No autenticado' }
 
     const messageData = {
-      contenido: contenido.trim(),
+      contenido: (contenido || '').trim() || null,
       remitente_id: user.id,
       es_soporte: isSoporte,
       ...(taskId ? { tarea_id: taskId } : {}),
       ...(isSoporte && otherUserId ? { destinatario_id: otherUserId } : {}),
+      ...(archivos && archivos.length > 0 ? { archivos } : {}),
     }
 
     const { data, error } = await supabase

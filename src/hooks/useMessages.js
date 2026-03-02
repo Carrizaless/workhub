@@ -3,10 +3,12 @@
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getMessages, sendMessageAction, getMessageById } from '@/actions/messages'
+import { createUploadUrl } from '@/actions/files'
 
 export function useMessages({ taskId = null, isSoporte = false, otherUserId = null, userId = null }) {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
 
   // Initial fetch via server action
   useEffect(() => {
@@ -94,30 +96,72 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
   }, [taskId, isSoporte, otherUserId, userId])
 
   const sendMessage = useCallback(
-    async (contenido) => {
-      if (!contenido.trim() || !userId) return
+    async (contenido, files = []) => {
+      if ((!contenido.trim() && files.length === 0) || !userId) return
+
+      // Upload files first if any
+      let archivos = null
+      if (files.length > 0) {
+        setUploading(true)
+        try {
+          const uploaded = []
+          for (const file of files) {
+            const folder = taskId ? `chat/${taskId}` : `chat/dm/${[userId, otherUserId].sort().join('-')}`
+            const filePath = `${folder}/${Date.now()}-${file.name}`
+            const urlResult = await createUploadUrl('task-attachments', filePath)
+            if (urlResult.error || !urlResult.signedUrl) {
+              console.error(`Upload URL error for ${file.name}:`, urlResult.error)
+              continue
+            }
+            const uploadRes = await fetch(urlResult.signedUrl, {
+              method: 'PUT',
+              headers: { 'Content-Type': file.type },
+              body: file,
+            })
+            if (uploadRes.ok) {
+              uploaded.push({ path: filePath, name: file.name, type: file.type })
+            } else {
+              console.error(`Upload failed for ${file.name}:`, uploadRes.status)
+            }
+          }
+          if (uploaded.length > 0) {
+            archivos = uploaded
+          }
+        } catch (e) {
+          console.error('File upload error:', e)
+        }
+        setUploading(false)
+      }
+
+      // If no text and uploads all failed, abort
+      if (!contenido.trim() && (!archivos || archivos.length === 0)) return
 
       // Optimistic insert
       const optimistic = {
         id: `temp-${Date.now()}`,
-        contenido: contenido.trim(),
+        contenido: contenido.trim() || null,
         remitente_id: userId,
         created_at: new Date().toISOString(),
         leido: false,
         es_soporte: isSoporte,
+        archivos: archivos,
         remitente: { id: userId, email: '', nombre: '', avatar_url: null },
       }
       setMessages((prev) => [...prev, optimistic])
 
       try {
-        const result = await sendMessageAction({ contenido, taskId, isSoporte, otherUserId })
+        const result = await sendMessageAction({
+          contenido: contenido.trim() || '',
+          taskId,
+          isSoporte,
+          otherUserId,
+          archivos,
+        })
 
         if (result.error) {
-          // Remove optimistic message on error
           setMessages((prev) => prev.filter((m) => m.id !== optimistic.id))
           console.error('Send message error:', result.error)
         } else if (result.data) {
-          // Replace optimistic with real message
           setMessages((prev) => {
             const filtered = prev.filter((m) => m.id !== optimistic.id)
             if (filtered.some((m) => m.id === result.data.id)) return filtered
@@ -132,5 +176,5 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
     [taskId, isSoporte, otherUserId, userId]
   )
 
-  return { messages, loading, sendMessage }
+  return { messages, loading, uploading, sendMessage }
 }
