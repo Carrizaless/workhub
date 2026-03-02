@@ -15,8 +15,6 @@ const adminLinks = [
   { href: '/wallet', label: 'Billetera' },
   { href: '/blog', label: 'Blog' },
   { href: '/reglas', label: 'Reglas' },
-  { href: '/invitar', label: 'Invitar' },
-  { href: '/tutorial', label: 'Tutorial' },
   { href: '/settings', label: 'Configuracion' },
 ]
 
@@ -27,7 +25,6 @@ const collaboratorLinks = [
   { href: '/wallet', label: 'Mi Billetera' },
   { href: '/blog', label: 'Blog' },
   { href: '/reglas', label: 'Reglas' },
-  { href: '/tutorial', label: 'Tutorial' },
   { href: '/settings', label: 'Configuracion' },
 ]
 
