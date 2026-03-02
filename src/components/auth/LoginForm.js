@@ -11,11 +11,18 @@ export default function LoginForm() {
     e.preventDefault()
     setLoading(true)
 
-    const formData = new FormData(e.target)
-    const result = await login(formData)
+    try {
+      const formData = new FormData(e.target)
+      const result = await login(formData)
 
-    if (result?.error) {
-      toast.error(result.error)
+      if (result?.error) {
+        toast.error(result.error)
+        setLoading(false)
+      }
+      // If no error, redirect() was called server-side — Next.js handles navigation
+    } catch (err) {
+      console.error('Login error:', err)
+      toast.error('Error al conectar con el servidor. Inténtalo de nuevo.')
       setLoading(false)
     }
   }
