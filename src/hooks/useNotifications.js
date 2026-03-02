@@ -2,43 +2,24 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getNotifications } from '@/actions/messages'
 
 export function useNotifications(userId) {
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
-  const supabase = createClient()
   const mountedRef = useRef(true)
 
   const fetchNotifications = useCallback(async () => {
     if (!userId || !mountedRef.current) return
 
     try {
-      // Fetch unread messages (not sent by current user)
-      const { data: messages } = await supabase
-        .from('messages')
-        .select('id, contenido, created_at, remitente:users!remitente_id(nombre, email), tarea_id')
-        .neq('remitente_id', userId)
-        .eq('leido', false)
-        .order('created_at', { ascending: false })
-        .limit(8)
-
-      // Fetch recent task history (changes made by others)
-      let history = null
-      try {
-        const res = await supabase
-          .from('task_history')
-          .select('id, task_id, estado_anterior, estado_nuevo, created_at, task:tasks!task_id(id, titulo), usuario:users!user_id(nombre, email)')
-          .neq('user_id', userId)
-          .order('created_at', { ascending: false })
-          .limit(8)
-        history = res.data
-      } catch {
-        // task_history table might not exist yet
-      }
-
+      const result = await getNotifications()
       if (!mountedRef.current) return
 
-      const msgNotifs = (messages || []).map((m) => ({
+      const messages = result.data?.messages || []
+      const history = result.data?.history || []
+
+      const msgNotifs = messages.map((m) => ({
         id: `msg-${m.id}`,
         type: 'message',
         title: 'Nuevo mensaje',
@@ -49,7 +30,7 @@ export function useNotifications(userId) {
         href: m.tarea_id ? `/tasks/${m.tarea_id}` : '/chat',
       }))
 
-      const historyNotifs = (history || []).map((h) => ({
+      const historyNotifs = history.map((h) => ({
         id: `hist-${h.id}`,
         type: 'task',
         title: h.task?.titulo || 'Tarea',
@@ -65,7 +46,7 @@ export function useNotifications(userId) {
         .slice(0, 12)
 
       setNotifications(all)
-      setUnreadCount((messages || []).length)
+      setUnreadCount(messages.length)
     } catch (e) {
       console.error('useNotifications fetch error:', e)
     }
@@ -79,6 +60,7 @@ export function useNotifications(userId) {
 
     let channel
     try {
+      const supabase = createClient()
       channel = supabase
         .channel(`notifications-${userId}`)
         .on(
@@ -107,7 +89,12 @@ export function useNotifications(userId) {
 
     return () => {
       mountedRef.current = false
-      try { if (channel) supabase.removeChannel(channel) } catch {}
+      try {
+        if (channel) {
+          const supabase = createClient()
+          supabase.removeChannel(channel)
+        }
+      } catch {}
     }
   }, [userId, fetchNotifications])
 

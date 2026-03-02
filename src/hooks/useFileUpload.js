@@ -1,14 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createUploadUrl } from '@/actions/files'
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from '@/lib/constants'
 
 export function useFileUpload(taskId) {
   const [progress, setProgress] = useState(0)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState(null)
-  const supabase = createClient()
 
   async function upload(file) {
     setError(null)
@@ -29,30 +28,17 @@ export function useFileUpload(taskId) {
     const filePath = `${taskId}/${Date.now()}-${file.name}`
 
     try {
-      // Try to get a signed upload URL for progress tracking
-      const { data: signedData, error: signedError } =
-        await supabase.storage
-          .from('task-attachments')
-          .createSignedUploadUrl(filePath)
+      // Get a signed upload URL from the server
+      const result = await createUploadUrl('task-attachments', filePath)
 
-      if (signedError || !signedData?.signedUrl) {
-        // Fallback to direct upload (no progress)
-        const { data, error: uploadError } = await supabase.storage
-          .from('task-attachments')
-          .upload(filePath, file, { cacheControl: '3600', upsert: false })
-
+      if (result.error || !result.signedUrl) {
+        setError(result.error || 'No se pudo obtener URL de subida')
         setUploading(false)
-        setProgress(100)
-
-        if (uploadError) {
-          setError(uploadError.message)
-          return null
-        }
-        return data.path
+        return null
       }
 
-      // Upload with XHR for progress events
-      return await new Promise((resolve, reject) => {
+      // Upload directly to Supabase Storage via XHR (bypasses client library)
+      return await new Promise((resolve) => {
         const xhr = new XMLHttpRequest()
         xhr.upload.addEventListener('progress', (e) => {
           if (e.lengthComputable) {
@@ -74,7 +60,7 @@ export function useFileUpload(taskId) {
           setError('Error de conexion al subir el archivo')
           resolve(null)
         })
-        xhr.open('PUT', signedData.signedUrl)
+        xhr.open('PUT', result.signedUrl)
         xhr.setRequestHeader('Content-Type', file.type)
         xhr.send(file)
       })

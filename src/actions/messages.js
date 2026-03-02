@@ -86,6 +86,72 @@ export async function getMessageById(messageId) {
   }
 }
 
+export async function getNotifications() {
+  const supabase = await createClient()
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado', data: { messages: [], history: [] } }
+
+    // Unread messages not sent by current user
+    const { data: messages } = await supabase
+      .from('messages')
+      .select('id, contenido, created_at, remitente:users!remitente_id(nombre, email), tarea_id')
+      .neq('remitente_id', user.id)
+      .eq('leido', false)
+      .order('created_at', { ascending: false })
+      .limit(8)
+
+    // Recent task history (changes by others)
+    let history = []
+    try {
+      const res = await supabase
+        .from('task_history')
+        .select('id, task_id, estado_anterior, estado_nuevo, created_at, task:tasks!task_id(id, titulo), usuario:users!user_id(nombre, email)')
+        .neq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(8)
+      history = res.data || []
+    } catch {
+      history = []
+    }
+
+    return { data: { messages: messages || [], history } }
+  } catch (e) {
+    return { error: CONN_ERROR, data: { messages: [], history: [] } }
+  }
+}
+
+export async function getUnreadCounts() {
+  const supabase = await createClient()
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado', data: { total: 0, dms: 0 } }
+
+    const { count: total } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .neq('remitente_id', user.id)
+      .eq('leido', false)
+
+    const { count: dms } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .neq('remitente_id', user.id)
+      .eq('es_soporte', true)
+      .eq('leido', false)
+
+    return { data: { total: total || 0, dms: dms || 0 } }
+  } catch (e) {
+    return { error: CONN_ERROR, data: { total: 0, dms: 0 } }
+  }
+}
+
 export async function markMessagesAsRead(messageIds) {
   const supabase = await createClient()
 

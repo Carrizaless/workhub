@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createTask, updateTaskFiles } from '@/actions/tasks'
-import { createClient } from '@/lib/supabase/client'
+import { createUploadUrl } from '@/actions/files'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
@@ -51,20 +51,29 @@ export default function TaskForm() {
 
     const taskId = result.data.id
 
-    // Upload pending files to the newly created task
+    // Upload pending files to the newly created task via signed URLs
     if (pendingFiles.length > 0) {
-      const supabase = createClient()
       const uploadedFiles = []
 
       for (const file of pendingFiles) {
         const filePath = `${taskId}/${Date.now()}-${file.name}`
         try {
-          const { data, error } = await supabase.storage
-            .from('task-attachments')
-            .upload(filePath, file, { cacheControl: '3600', upsert: false })
+          // Get signed upload URL from server
+          const urlResult = await createUploadUrl('task-attachments', filePath)
+          if (urlResult.error || !urlResult.signedUrl) {
+            toast.error(`Error subiendo ${file.name}: ${urlResult.error || 'No se pudo obtener URL'}`)
+            continue
+          }
 
-          if (!error) {
-            uploadedFiles.push({ path: data.path, name: file.name, type: file.type })
+          // Upload directly via fetch (bypasses client library)
+          const uploadRes = await fetch(urlResult.signedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type },
+            body: file,
+          })
+
+          if (uploadRes.ok) {
+            uploadedFiles.push({ path: filePath, name: file.name, type: file.type })
           } else {
             toast.error(`Error subiendo ${file.name}`)
           }

@@ -2,23 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getUnreadCounts } from '@/actions/messages'
 
 export function useUnreadCount(userId) {
   const [count, setCount] = useState(0)
-  const supabase = createClient()
 
   useEffect(() => {
     if (!userId) return
 
     async function fetchCount() {
       try {
-        const { count: unread } = await supabase
-          .from('messages')
-          .select('*', { count: 'exact', head: true })
-          .neq('remitente_id', userId)
-          .eq('leido', false)
-
-        setCount(unread || 0)
+        const result = await getUnreadCounts()
+        setCount(result.data?.total || 0)
       } catch (e) {
         console.error('useUnreadCount fetch error:', e)
       }
@@ -28,6 +23,7 @@ export function useUnreadCount(userId) {
 
     let channel
     try {
+      const supabase = createClient()
       channel = supabase
         .channel('unread-count')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
@@ -42,7 +38,12 @@ export function useUnreadCount(userId) {
     }
 
     return () => {
-      try { if (channel) supabase.removeChannel(channel) } catch {}
+      try {
+        if (channel) {
+          const supabase = createClient()
+          supabase.removeChannel(channel)
+        }
+      } catch {}
     }
   }, [userId])
 
@@ -54,21 +55,14 @@ export function useUnreadCount(userId) {
  */
 export function useUnreadDMs(userId) {
   const [count, setCount] = useState(0)
-  const supabase = createClient()
 
   useEffect(() => {
     if (!userId) return
 
     async function fetchCount() {
       try {
-        const { count: unread } = await supabase
-          .from('messages')
-          .select('*', { count: 'exact', head: true })
-          .neq('remitente_id', userId)
-          .eq('es_soporte', true)
-          .eq('leido', false)
-
-        setCount(unread || 0)
+        const result = await getUnreadCounts()
+        setCount(result.data?.dms || 0)
       } catch (e) {
         console.error('useUnreadDMs fetch error:', e)
       }
@@ -78,6 +72,7 @@ export function useUnreadDMs(userId) {
 
     let channel
     try {
+      const supabase = createClient()
       channel = supabase
         .channel(`unread-dms-${userId}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
@@ -94,7 +89,12 @@ export function useUnreadDMs(userId) {
     }
 
     return () => {
-      try { if (channel) supabase.removeChannel(channel) } catch {}
+      try {
+        if (channel) {
+          const supabase = createClient()
+          supabase.removeChannel(channel)
+        }
+      } catch {}
     }
   }, [userId])
 

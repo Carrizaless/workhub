@@ -64,24 +64,35 @@ export default function SettingsPage() {
     setUploadingAvatar(true)
 
     try {
-      const supabase = (await import('@/lib/supabase/client')).createClient()
+      const { createUploadUrl, getPublicUrl } = await import('@/actions/files')
       const ext = file.name.split('.').pop()
       const filePath = `${user.id}/avatar.${ext}`
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatares')
-        .upload(filePath, file, { upsert: true, cacheControl: '3600' })
-
-      if (uploadError) {
-        toast.error('Error al subir la imagen: ' + uploadError.message)
+      // Get signed upload URL from server
+      const urlResult = await createUploadUrl('avatares', filePath)
+      if (urlResult.error || !urlResult.signedUrl) {
+        toast.error('Error al subir la imagen: ' + (urlResult.error || 'No se pudo obtener URL'))
         setAvatarPreview(null)
         setUploadingAvatar(false)
         return
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatares')
-        .getPublicUrl(filePath)
+      // Upload directly via fetch
+      const uploadRes = await fetch(urlResult.signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      })
+
+      if (!uploadRes.ok) {
+        toast.error('Error al subir la imagen')
+        setAvatarPreview(null)
+        setUploadingAvatar(false)
+        return
+      }
+
+      // Get the public URL from the server
+      const { publicUrl } = await getPublicUrl('avatares', filePath)
 
       // Cache-bust so the browser reloads the new image
       const result = await updateAvatar(`${publicUrl}?t=${Date.now()}`)
