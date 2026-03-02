@@ -14,16 +14,16 @@
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --sidebar-bg: #1e293b;
-  --card-bg: #1e293b;
-  --border: #334155;
+  --background: #0a0a0a;
+  --foreground: #e4e4e7;
+  --sidebar-bg: #111111;
+  --card-bg: #141414;
+  --border: #262626;
   --accent: #3b82f6;
-  --accent-light: #1e3a5f;
-  --muted: #94a3b8;
-  --muted-bg: #1e293b;
-  --input-bg: #1e293b;
+  --accent-light: #172554;
+  --muted: #71717a;
+  --muted-bg: #1a1a1a;
+  --input-bg: #141414;
 }
 
 @theme inline {
@@ -62,7 +62,7 @@ body {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #333333;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -70,7 +70,7 @@ body {
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: #444444;
 }
 
 /* Blog HTML content renderer */
