@@ -4,13 +4,14 @@ import { NextResponse } from 'next/server'
 export async function middleware(request) {
   let supabaseResponse = NextResponse.next({ request })
 
-  // Skip auth if Supabase is not configured
+  // If Supabase is not configured, redirect everything to login
+  // (except the login page itself to avoid infinite redirects)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
-    // Redirect root to dashboard even without auth
-    if (request.nextUrl.pathname === '/') {
+    const isLoginPage = request.nextUrl.pathname === '/login'
+    if (!isLoginPage) {
       const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
+      url.pathname = '/login'
       return NextResponse.redirect(url)
     }
     return supabaseResponse
