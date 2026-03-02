@@ -20,17 +20,23 @@ export default function AdminDashboard() {
     async function loadStats() {
       console.log('[DEBUG] AdminDashboard loadStats() called')
       try {
-        const [statsRes, recentRes] = await Promise.all([
-          getAdminStats(),
-          supabase
-            .from('tasks')
-            .select('id, titulo, estado, precio, created_at')
-            .order('created_at', { ascending: false })
-            .limit(5),
-        ])
+        console.log('[DEBUG] 1. Starting getAdminStats()...')
+        const statsPromise = getAdminStats()
 
-        console.log('[DEBUG] statsRes:', JSON.stringify(statsRes))
-        console.log('[DEBUG] recentRes:', JSON.stringify(recentRes))
+        console.log('[DEBUG] 2. Starting client-side tasks query...')
+        const recentPromise = supabase
+          .from('tasks')
+          .select('id, titulo, estado, precio, created_at')
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        console.log('[DEBUG] 3. Awaiting getAdminStats...')
+        const statsRes = await statsPromise
+        console.log('[DEBUG] 4. getAdminStats resolved:', JSON.stringify(statsRes)?.substring(0, 200))
+
+        console.log('[DEBUG] 5. Awaiting client tasks query...')
+        const recentRes = await recentPromise
+        console.log('[DEBUG] 6. Client tasks resolved:', JSON.stringify(recentRes)?.substring(0, 200))
 
         if (recentRes.error) console.error('Recent tasks error:', recentRes.error.message)
 
