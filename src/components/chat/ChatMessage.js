@@ -13,8 +13,8 @@ export default function ChatMessage({ message, isOwn, onDownload }) {
         className={clsx(
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium',
           isOwn
-            ? 'bg-gray-900 text-white'
-            : 'bg-gray-100 text-gray-600'
+            ? 'bg-accent text-white'
+            : 'bg-muted-bg text-muted'
         )}
       >
         {displayName[0]?.toUpperCase()}
@@ -22,10 +22,10 @@ export default function ChatMessage({ message, isOwn, onDownload }) {
 
       <div className={clsx('max-w-[75%]', isOwn && 'text-right')}>
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs font-medium text-gray-700">
+          <span className="text-xs font-medium text-foreground">
             {isOwn ? 'Tu' : displayName}
           </span>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-muted">
             {formatRelative(message.created_at)}
           </span>
         </div>
@@ -36,8 +36,8 @@ export default function ChatMessage({ message, isOwn, onDownload }) {
             className={clsx(
               'inline-block rounded-2xl px-4 py-2.5 text-sm',
               isOwn
-                ? 'bg-gray-900 text-white rounded-tr-md'
-                : 'bg-gray-100 text-gray-900 rounded-tl-md'
+                ? 'bg-accent text-white rounded-tr-md'
+                : 'bg-muted-bg text-foreground rounded-tl-md'
             )}
           >
             {message.contenido}
@@ -72,8 +72,8 @@ function AttachmentCard({ file, isOwn, onDownload }) {
       className={clsx(
         'flex items-center gap-2.5 rounded-xl border px-3 py-2 text-left transition-colors w-full max-w-[260px]',
         isOwn
-          ? 'border-gray-700 bg-gray-800 hover:bg-gray-700'
-          : 'border-gray-200 bg-white hover:bg-gray-50'
+          ? 'border-accent/40 bg-accent/20 hover:bg-accent/30'
+          : 'border-border bg-card hover:bg-muted-bg'
       )}
     >
       <span className={clsx(
@@ -88,20 +88,17 @@ function AttachmentCard({ file, isOwn, onDownload }) {
       <div className="min-w-0 flex-1">
         <p className={clsx(
           'text-xs font-medium truncate',
-          isOwn ? 'text-white' : 'text-gray-800'
+          isOwn ? 'text-white' : 'text-foreground'
         )}>
           {file.name}
         </p>
-        <p className={clsx(
-          'text-[10px]',
-          isOwn ? 'text-gray-400' : 'text-gray-400'
-        )}>
+        <p className="text-[10px] text-muted">
           Descargar
         </p>
       </div>
 
       <svg
-        className={clsx('h-4 w-4 shrink-0', isOwn ? 'text-gray-400' : 'text-gray-400')}
+        className="h-4 w-4 shrink-0 text-muted"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={2}

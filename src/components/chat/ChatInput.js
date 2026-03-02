@@ -56,11 +56,11 @@ export default function ChatInput({ onSend, disabled = false, uploading = false 
           {pendingFiles.map((file, i) => (
             <div
               key={i}
-              className="flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-200 px-2.5 py-1.5 text-xs"
+              className="flex items-center gap-1.5 rounded-lg bg-muted-bg border border-border px-2.5 py-1.5 text-xs"
             >
               <FileIcon type={file.type} />
-              <span className="text-gray-700 max-w-[120px] truncate">{file.name}</span>
-              <span className="text-gray-400">
+              <span className="text-foreground max-w-[120px] truncate">{file.name}</span>
+              <span className="text-muted">
                 {(file.size / 1024 / 1024).toFixed(1)}MB
               </span>
               <button
@@ -84,7 +84,7 @@ export default function ChatInput({ onSend, disabled = false, uploading = false 
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={disabled || uploading}
-          className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-xl border border-border bg-input-bg px-3 py-2.5 text-muted hover:text-foreground hover:bg-muted-bg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           title="Adjuntar archivo"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -108,13 +108,13 @@ export default function ChatInput({ onSend, disabled = false, uploading = false 
           onKeyDown={handleKeyDown}
           placeholder={uploading ? 'Subiendo archivos...' : 'Escribe un mensaje...'}
           disabled={disabled || uploading}
-          className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
+          className="flex-1 rounded-xl border border-border bg-input-bg px-4 py-2.5 text-sm text-foreground placeholder-muted outline-none focus:border-accent focus:bg-card focus:ring-2 focus:ring-accent/20 disabled:opacity-50 transition-colors"
         />
 
         <button
           type="submit"
           disabled={!hasContent || disabled || uploading}
-          className="rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {uploading ? (
             <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">

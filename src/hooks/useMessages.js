@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { getMessages, sendMessageAction, getMessageById } from '@/actions/messages'
+import { getMessages, sendMessageAction, getMessageById, markChatAsRead } from '@/actions/messages'
 import { createUploadUrl } from '@/actions/files'
 
 export function useMessages({ taskId = null, isSoporte = false, otherUserId = null, userId = null }) {
@@ -10,12 +10,17 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
 
-  // Initial fetch via server action
+  // Initial fetch via server action + auto-mark as read
   useEffect(() => {
     async function loadMessages() {
       try {
         const result = await getMessages({ taskId, isSoporte, otherUserId })
         setMessages(result.data || [])
+
+        // Auto-mark unread messages as read when opening the chat
+        if (userId) {
+          markChatAsRead({ taskId, isSoporte, otherUserId }).catch(() => {})
+        }
       } catch (e) {
         console.error('useMessages load error:', e)
         setMessages([])

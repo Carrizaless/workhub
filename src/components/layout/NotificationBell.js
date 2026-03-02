@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useNotifications } from '@/hooks/useNotifications'
+import { markAllAsRead } from '@/actions/messages'
 import { formatRelative } from '@/lib/utils'
 import Link from 'next/link'
 
 export default function NotificationBell({ userId }) {
   const [open, setOpen] = useState(false)
-  const { notifications, unreadCount, clearUnread } = useNotifications(userId)
+  const { notifications, unreadCount, clearUnread, refresh } = useNotifications(userId)
   const panelRef = useRef(null)
 
   // Close on outside click
@@ -26,12 +27,20 @@ export default function NotificationBell({ userId }) {
     if (!open) clearUnread()
   }
 
+  async function handleMarkAllRead() {
+    try {
+      await markAllAsRead()
+      clearUnread()
+      refresh()
+    } catch {}
+  }
+
   return (
     <div className="relative" ref={panelRef}>
       {/* Bell button */}
       <button
         onClick={handleOpen}
-        className="relative flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors"
+        className="relative flex h-9 w-9 items-center justify-center rounded-xl text-muted hover:bg-muted-bg transition-colors"
         aria-label="Notificaciones"
       >
         <svg
@@ -58,15 +67,18 @@ export default function NotificationBell({ userId }) {
 
       {/* Dropdown panel */}
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-gray-100 bg-white shadow-xl">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-            <h3 className="text-sm font-semibold text-gray-900">
+        <div className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-border bg-card shadow-xl transition-colors">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <h3 className="text-sm font-semibold text-foreground">
               Notificaciones
             </h3>
-            {notifications.length > 0 && (
-              <span className="text-xs text-gray-400">
-                {notifications.filter((n) => n.unread).length} sin leer
-              </span>
+            {notifications.filter((n) => n.unread).length > 0 && (
+              <button
+                onClick={handleMarkAllRead}
+                className="text-xs text-accent hover:opacity-80 transition-colors"
+              >
+                Marcar como leídos
+              </button>
             )}
           </div>
 
@@ -74,7 +86,7 @@ export default function NotificationBell({ userId }) {
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <svg
-                  className="h-8 w-8 text-gray-300 mb-2"
+                  className="h-8 w-8 text-muted/50 mb-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
@@ -86,10 +98,10 @@ export default function NotificationBell({ userId }) {
                     d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
                   />
                 </svg>
-                <p className="text-sm text-gray-400">Sin notificaciones</p>
+                <p className="text-sm text-muted">Sin notificaciones</p>
               </div>
             ) : (
-              <ul className="divide-y divide-gray-50">
+              <ul className="divide-y divide-border/50">
                 {notifications.map((n) => (
                   <NotificationItem key={n.id} notification={n} onClose={() => setOpen(false)} />
                 ))}
@@ -105,8 +117,8 @@ export default function NotificationBell({ userId }) {
 function NotificationItem({ notification: n, onClose }) {
   const content = (
     <div
-      className={`flex gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer ${
-        n.unread ? 'bg-blue-50/40' : ''
+      className={`flex gap-3 px-4 py-3 hover:bg-muted-bg/60 transition-colors cursor-pointer ${
+        n.unread ? 'bg-accent-light/40' : ''
       }`}
     >
       {/* Icon */}
@@ -129,13 +141,13 @@ function NotificationItem({ notification: n, onClose }) {
       {/* Content */}
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <p className="text-xs font-semibold text-gray-900 truncate">{n.title}</p>
+          <p className="text-xs font-semibold text-foreground truncate">{n.title}</p>
           {n.unread && (
             <span className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
           )}
         </div>
-        <p className="mt-0.5 text-xs text-gray-600 line-clamp-2">{n.text}</p>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-0.5 text-xs text-muted line-clamp-2">{n.text}</p>
+        <p className="mt-1 text-xs text-muted/70">
           {n.from} · {formatRelative(n.time)}
         </p>
       </div>

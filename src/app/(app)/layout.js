@@ -27,7 +27,7 @@ export default async function AppLayout({ children }) {
 
   return (
     <UserProvider initialUser={initialUser} initialProfile={initialProfile}>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen bg-background text-foreground transition-colors">
         <Sidebar />
         <div className="flex-1 lg:ml-64">
           <Header />

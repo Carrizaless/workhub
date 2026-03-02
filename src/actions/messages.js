@@ -49,7 +49,7 @@ export async function sendMessageAction({ contenido, taskId = null, isSoporte = 
     if (!user) return { error: 'No autenticado' }
 
     const messageData = {
-      contenido: (contenido || '').trim() || null,
+      contenido: (contenido || '').trim() || '',
       remitente_id: user.id,
       es_soporte: isSoporte,
       ...(taskId ? { tarea_id: taskId } : {}),
@@ -162,6 +162,67 @@ export async function markMessagesAsRead(messageIds) {
       .update({ leido: true })
       .in('id', messageIds)
 
+    if (error) return { error: error.message }
+    return { success: true }
+  } catch (e) {
+    return { error: CONN_ERROR }
+  }
+}
+
+/**
+ * Mark all unread messages as read for the current user.
+ */
+export async function markAllAsRead() {
+  const supabase = await createClient()
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado' }
+
+    const { error } = await supabase
+      .from('messages')
+      .update({ leido: true })
+      .neq('remitente_id', user.id)
+      .eq('leido', false)
+
+    if (error) return { error: error.message }
+    return { success: true }
+  } catch (e) {
+    return { error: CONN_ERROR }
+  }
+}
+
+/**
+ * Mark messages as read for a specific chat context (task or DM).
+ */
+export async function markChatAsRead({ taskId = null, isSoporte = false, otherUserId = null }) {
+  const supabase = await createClient()
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado' }
+
+    let query = supabase
+      .from('messages')
+      .update({ leido: true })
+      .neq('remitente_id', user.id)
+      .eq('leido', false)
+
+    if (taskId) {
+      query = query.eq('tarea_id', taskId)
+    } else if (isSoporte && otherUserId) {
+      query = query
+        .eq('es_soporte', true)
+        .or(`destinatario_id.eq.${user.id},remitente_id.eq.${otherUserId}`)
+    } else if (isSoporte) {
+      query = query.eq('es_soporte', true)
+    }
+
+    const { error } = await query
     if (error) return { error: error.message }
     return { success: true }
   } catch (e) {

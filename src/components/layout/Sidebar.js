@@ -38,9 +38,9 @@ export default function Sidebar() {
     (profile?.nombre?.[0] || profile?.email?.[0] || '?').toUpperCase()
 
   return (
-    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-64 flex-col border-r border-gray-200 bg-white lg:flex">
-      <div className="flex h-16 items-center px-6 border-b border-gray-100">
-        <Link href="/dashboard" className="text-xl font-semibold text-gray-900">
+    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-64 flex-col border-r border-border bg-sidebar lg:flex transition-colors">
+      <div className="flex h-16 items-center px-6 border-b border-border">
+        <Link href="/dashboard" className="text-xl font-semibold text-foreground">
           WorkHub
         </Link>
       </div>
@@ -58,8 +58,8 @@ export default function Sidebar() {
               className={clsx(
                 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-muted-bg text-foreground'
+                  : 'text-muted hover:bg-muted-bg/60 hover:text-foreground'
               )}
             >
               <link.icon className="h-5 w-5 flex-shrink-0" />
@@ -74,7 +74,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t border-gray-100 p-4">
+      <div className="border-t border-border p-4">
         <div className="flex items-center gap-3 mb-3">
           {profile?.avatar_url ? (
             <img
@@ -83,15 +83,15 @@ export default function Sidebar() {
               className="h-9 w-9 rounded-full object-cover flex-shrink-0"
             />
           ) : (
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-600">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted-bg text-sm font-medium text-muted">
               {initials}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-gray-900">
+            <p className="truncate text-sm font-medium text-foreground">
               {profile?.nombre || profile?.email}
             </p>
-            <p className="text-xs text-gray-500 capitalize">{profile?.role}</p>
+            <p className="text-xs text-muted capitalize">{profile?.role}</p>
           </div>
         </div>
         <LogoutButton className="w-full text-left" />
