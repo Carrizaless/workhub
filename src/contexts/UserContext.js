@@ -5,36 +5,43 @@ import { createClient } from '@/lib/supabase/client'
 
 const UserContext = createContext(null)
 
-export function UserProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
+export function UserProvider({ children, initialUser = null, initialProfile = null }) {
+  // Use server-provided data immediately (no loading flash)
+  const [user, setUser] = useState(initialUser)
+  const [profile, setProfile] = useState(initialProfile)
+  const [loading, setLoading] = useState(!initialUser)
   const supabase = createClient()
 
   useEffect(() => {
-    async function loadUser() {
-      try {
-        const {
-          data: { user: authUser },
-        } = await supabase.auth.getUser()
-
-        if (authUser) {
-          setUser(authUser)
-          const { data: profileData } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', authUser.id)
-            .single()
-          setProfile(profileData)
-        }
-      } catch {
-        // Supabase not configured yet — continue without auth
-      }
+    // If we already have initial data from server, skip client-side fetch
+    if (initialUser) {
       setLoading(false)
+    } else {
+      // Fallback: try client-side auth (for local dev or if server fetch failed)
+      async function loadUser() {
+        try {
+          const {
+            data: { user: authUser },
+          } = await supabase.auth.getUser()
+
+          if (authUser) {
+            setUser(authUser)
+            const { data: profileData } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', authUser.id)
+              .single()
+            setProfile(profileData)
+          }
+        } catch {
+          // Supabase not configured yet — continue without auth
+        }
+        setLoading(false)
+      }
+      loadUser()
     }
 
-    loadUser()
-
+    // Listen for auth state changes (login/logout from other tabs, token refresh)
     let subscription
     try {
       const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
