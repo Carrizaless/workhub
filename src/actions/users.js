@@ -240,16 +240,18 @@ export async function getChatUsers() {
       if (error) return { error: error.message }
       return { data: { role: 'admin', users: data || [] } }
     } else {
-      // Collaborator sees admin
-      const { data, error } = await supabase
+      // Collaborator sees admin — use admin client to bypass RLS
+      // (collaborators can only see their own profile via RLS)
+      const admin = createAdminClient()
+      const { data, error } = await admin
         .from('users')
-        .select('id')
+        .select('id, nombre, email, avatar_url')
         .eq('role', 'admin')
         .limit(1)
         .single()
 
       if (error) return { error: error.message }
-      return { data: { role: 'colaborador', adminId: data?.id } }
+      return { data: { role: 'colaborador', adminId: data?.id, adminUser: data } }
     }
   } catch (e) {
     return { error: CONN_ERROR }
