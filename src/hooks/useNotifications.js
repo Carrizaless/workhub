@@ -23,12 +23,18 @@ export function useNotifications(userId) {
         .limit(8)
 
       // Fetch recent task history (changes made by others)
-      const { data: history } = await supabase
-        .from('task_history')
-        .select('id, task_id, estado_anterior, estado_nuevo, created_at, task:tasks!task_id(id, titulo), usuario:users!user_id(nombre, email)')
-        .neq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(8)
+      let history = null
+      try {
+        const res = await supabase
+          .from('task_history')
+          .select('id, task_id, estado_anterior, estado_nuevo, created_at, task:tasks!task_id(id, titulo), usuario:users!user_id(nombre, email)')
+          .neq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(8)
+        history = res.data
+      } catch {
+        // task_history table might not exist yet
+      }
 
       if (!mountedRef.current) return
 
@@ -60,8 +66,8 @@ export function useNotifications(userId) {
 
       setNotifications(all)
       setUnreadCount((messages || []).length)
-    } catch {
-      // Silently fail (e.g. task_history table not yet created)
+    } catch (e) {
+      console.error('useNotifications fetch error:', e)
     }
   }, [userId])
 
@@ -71,32 +77,37 @@ export function useNotifications(userId) {
 
     if (!userId) return
 
-    const channel = supabase
-      .channel(`notifications-${userId}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          if (payload.new.remitente_id !== userId) {
-            setUnreadCount((prev) => prev + 1)
-            fetchNotifications()
+    let channel
+    try {
+      channel = supabase
+        .channel(`notifications-${userId}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'messages' },
+          (payload) => {
+            if (payload.new.remitente_id !== userId) {
+              setUnreadCount((prev) => prev + 1)
+              fetchNotifications()
+            }
           }
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'task_history' },
-        (payload) => {
-          if (payload.new.user_id !== userId) {
-            fetchNotifications()
+        )
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'task_history' },
+          (payload) => {
+            if (payload.new.user_id !== userId) {
+              fetchNotifications()
+            }
           }
-        }
-      )
-      .subscribe()
+        )
+        .subscribe()
+    } catch (e) {
+      console.error('useNotifications subscription error:', e)
+    }
 
     return () => {
       mountedRef.current = false
-      supabase.removeChannel(channel)
+      try { if (channel) supabase.removeChannel(channel) } catch {}
     }
   }, [userId, fetchNotifications])
 
