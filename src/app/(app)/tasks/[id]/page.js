@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
@@ -14,7 +13,7 @@ import ChatPanel from '@/components/chat/ChatPanel'
 import TaskHistory from '@/components/tasks/TaskHistory'
 import TaskRating from '@/components/tasks/TaskRating'
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils'
-import { deleteTask, rateTask } from '@/actions/tasks'
+import { getTask, deleteTask, rateTask } from '@/actions/tasks'
 import toast from 'react-hot-toast'
 
 export default function TaskDetailPage() {
@@ -27,35 +26,28 @@ export default function TaskDetailPage() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const supabase = createClient()
 
   const isAssignedToMe = !!user?.id && task?.asignado_a === user.id
 
   const loadTask = useCallback(async () => {
     setLoading(true)
-
-    const taskRes = await supabase
-      .from('tasks')
-      .select('*, asignado:users!asignado_a(id, email, nombre)')
-      .eq('id', id)
-      .single()
-
-    // task_history may not exist yet — fail silently
-    let historyData = []
     try {
-      const historyRes = await supabase
-        .from('task_history')
-        .select('*, usuario:users!user_id(nombre, email)')
-        .eq('task_id', id)
-        .order('created_at', { ascending: true })
-      historyData = historyRes.data || []
-    } catch {
-      historyData = []
+      const result = await getTask(id)
+      if (result.error) {
+        console.error('Task load error:', result.error)
+        setTask(null)
+        setHistory([])
+      } else {
+        setTask(result.data?.task || null)
+        setHistory(result.data?.history || [])
+      }
+    } catch (e) {
+      console.error('Error loading task:', e)
+      setTask(null)
+      setHistory([])
+    } finally {
+      setLoading(false)
     }
-
-    setTask(taskRes.data)
-    setHistory(historyData)
-    setLoading(false)
   }, [id, refreshKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

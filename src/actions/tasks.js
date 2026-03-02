@@ -230,6 +230,37 @@ export async function getAllTasks() {
   }
 }
 
+export async function getTask(taskId) {
+  const supabase = await createClient()
+
+  try {
+    const { data: task, error } = await supabase
+      .from('tasks')
+      .select('*, asignado:users!asignado_a(id, email, nombre)')
+      .eq('id', taskId)
+      .single()
+
+    if (error) return { error: error.message }
+
+    // task_history may not exist yet — fail silently
+    let history = []
+    try {
+      const historyRes = await supabase
+        .from('task_history')
+        .select('*, usuario:users!user_id(nombre, email)')
+        .eq('task_id', taskId)
+        .order('created_at', { ascending: true })
+      history = historyRes.data || []
+    } catch {
+      history = []
+    }
+
+    return { data: { task, history } }
+  } catch (e) {
+    return { error: CONN_ERROR }
+  }
+}
+
 export async function deleteTask(taskId) {
   const supabase = await createClient()
   const admin = createAdminClient()

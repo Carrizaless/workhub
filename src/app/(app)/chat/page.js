@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@/contexts/UserContext'
-import { createClient } from '@/lib/supabase/client'
+import { getChatUsers } from '@/actions/users'
 import ChatPanel from '@/components/chat/ChatPanel'
 import Card from '@/components/ui/Card'
 import clsx from 'clsx'
@@ -17,29 +17,27 @@ export default function ChatPage() {
   useEffect(() => {
     if (loading || !user) return
 
-    const supabase = createClient()
-
     async function loadUsers() {
-      if (isAdmin) {
-        const { data } = await supabase
-          .from('users')
-          .select('id, nombre, email, avatar_url')
-          .eq('role', 'colaborador')
-          .order('nombre', { ascending: true })
+      try {
+        const result = await getChatUsers()
+        if (result.error) {
+          console.error('Chat users error:', result.error)
+          setLoadingUsers(false)
+          return
+        }
 
-        setCollaborators(data || [])
-        if (data?.length > 0) setSelectedCollab(data[0])
-      } else {
-        const { data } = await supabase
-          .from('users')
-          .select('id')
-          .eq('role', 'admin')
-          .limit(1)
-          .single()
-
-        if (data) setAdminId(data.id)
+        if (result.data?.role === 'admin') {
+          const users = result.data.users || []
+          setCollaborators(users)
+          if (users.length > 0) setSelectedCollab(users[0])
+        } else {
+          if (result.data?.adminId) setAdminId(result.data.adminId)
+        }
+      } catch (e) {
+        console.error('Error loading chat users:', e)
+      } finally {
+        setLoadingUsers(false)
       }
-      setLoadingUsers(false)
     }
 
     loadUsers()

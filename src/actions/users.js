@@ -214,6 +214,48 @@ export async function getCollaboratorsWithBinance() {
   }
 }
 
+export async function getChatUsers() {
+  const supabase = await createClient()
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado' }
+
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role === 'admin') {
+      // Admin sees list of collaborators
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, nombre, email, avatar_url')
+        .eq('role', 'colaborador')
+        .order('nombre', { ascending: true })
+
+      if (error) return { error: error.message }
+      return { data: { role: 'admin', users: data || [] } }
+    } else {
+      // Collaborator sees admin
+      const { data, error } = await supabase
+        .from('users')
+        .select('id')
+        .eq('role', 'admin')
+        .limit(1)
+        .single()
+
+      if (error) return { error: error.message }
+      return { data: { role: 'colaborador', adminId: data?.id } }
+    }
+  } catch (e) {
+    return { error: CONN_ERROR }
+  }
+}
+
 export async function deleteCollaborator(collaboratorId) {
   const supabase = await createClient()
 

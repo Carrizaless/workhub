@@ -3,7 +3,6 @@
 import { useRef, useState } from 'react'
 import { useUser } from '@/contexts/UserContext'
 import { updateProfile, changePassword, updateAvatar } from '@/actions/users'
-import { createClient } from '@/lib/supabase/client'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -16,7 +15,6 @@ export default function SettingsPage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const fileInputRef = useRef(null)
-  const supabase = createClient()
 
   async function handleProfileSubmit(e) {
     e.preventDefault()
@@ -65,34 +63,41 @@ export default function SettingsPage() {
 
     setUploadingAvatar(true)
 
-    const ext = file.name.split('.').pop()
-    const filePath = `${user.id}/avatar.${ext}`
+    try {
+      const supabase = (await import('@/lib/supabase/client')).createClient()
+      const ext = file.name.split('.').pop()
+      const filePath = `${user.id}/avatar.${ext}`
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatares')
-      .upload(filePath, file, { upsert: true, cacheControl: '3600' })
+      const { error: uploadError } = await supabase.storage
+        .from('avatares')
+        .upload(filePath, file, { upsert: true, cacheControl: '3600' })
 
-    if (uploadError) {
-      toast.error('Error al subir la imagen: ' + uploadError.message)
+      if (uploadError) {
+        toast.error('Error al subir la imagen: ' + uploadError.message)
+        setAvatarPreview(null)
+        setUploadingAvatar(false)
+        return
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatares')
+        .getPublicUrl(filePath)
+
+      // Cache-bust so the browser reloads the new image
+      const result = await updateAvatar(`${publicUrl}?t=${Date.now()}`)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success('Foto de perfil actualizada')
+      }
+    } catch (err) {
+      console.error('Avatar upload error:', err)
+      toast.error('Error al subir la imagen. Inténtalo de nuevo.')
       setAvatarPreview(null)
+    } finally {
       setUploadingAvatar(false)
-      return
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('avatares')
-      .getPublicUrl(filePath)
-
-    // Cache-bust so the browser reloads the new image
-    const result = await updateAvatar(`${publicUrl}?t=${Date.now()}`)
-    if (result.error) {
-      toast.error(result.error)
-    } else {
-      toast.success('Foto de perfil actualizada')
-    }
-
-    setUploadingAvatar(false)
-    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   if (loading) {

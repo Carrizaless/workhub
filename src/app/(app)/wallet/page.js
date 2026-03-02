@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useUser } from '@/contexts/UserContext'
-import { createClient } from '@/lib/supabase/client'
 import { updateBinanceId } from '@/actions/users'
+import { getTransactions } from '@/actions/wallet'
 import BalanceCard from '@/components/wallet/BalanceCard'
 import TransactionTable from '@/components/wallet/TransactionTable'
 import Card from '@/components/ui/Card'
@@ -16,7 +16,6 @@ export default function WalletPage() {
   const [loading, setLoading] = useState(true)
   const [binanceId, setBinanceId] = useState('')
   const [savingBinance, setSavingBinance] = useState(false)
-  const supabase = createClient()
 
   // Sync input with profile
   useEffect(() => {
@@ -30,18 +29,18 @@ export default function WalletPage() {
         return
       }
 
-      let query = supabase
-        .from('transactions')
-        .select('*, tarea:tasks(titulo)')
-        .order('created_at', { ascending: false })
-
-      if (!isAdmin) {
-        query = query.eq('usuario_id', user.id)
+      try {
+        const result = await getTransactions()
+        if (result.error) {
+          console.error('Transactions error:', result.error)
+        }
+        setTransactions(result.data || [])
+      } catch (e) {
+        console.error('Error loading transactions:', e)
+        setTransactions([])
+      } finally {
+        setLoading(false)
       }
-
-      const { data } = await query
-      setTransactions(data || [])
-      setLoading(false)
     }
 
     if (!userLoading) loadTransactions()
