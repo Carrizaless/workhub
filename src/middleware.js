@@ -3,24 +3,19 @@ import { NextResponse } from 'next/server'
 
 export async function middleware(request) {
   let supabaseResponse = NextResponse.next({ request })
+  const isLoginPage = request.nextUrl.pathname === '/login'
 
-  // If Supabase is not configured, redirect everything to login
-  // (except the login page itself to avoid infinite redirects)
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
-    const isLoginPage = request.nextUrl.pathname === '/login'
-    if (!isLoginPage) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
+  // Try to verify the user's session
+  let user = null
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing env vars')
     }
-    return supabaseResponse
-  }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
+    const supabase = createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll()
@@ -35,26 +30,13 @@ export async function middleware(request) {
           )
         },
       },
-    }
-  )
+    })
 
-  let user = null
-  try {
     const { data } = await supabase.auth.getUser()
     user = data?.user ?? null
   } catch {
-    // Auth check failed (network error, timeout, etc.)
-    // Treat as unauthenticated — redirect to login unless already there
-    const isLoginPage = request.nextUrl.pathname === '/login'
-    if (!isLoginPage) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
-    return supabaseResponse
+    // Any failure (missing env, network, etc.) — treat as unauthenticated
   }
-
-  const isLoginPage = request.nextUrl.pathname === '/login'
 
   // Redirect unauthenticated users to login
   if (!user && !isLoginPage) {
