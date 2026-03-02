@@ -21,6 +21,10 @@ export default function LoginForm() {
       }
       // If no error, redirect() was called server-side — Next.js handles navigation
     } catch (err) {
+      // NEXT_REDIRECT is thrown internally by Next.js redirect() — not a real error
+      if (err?.digest?.includes('NEXT_REDIRECT')) {
+        return // Let Next.js handle the navigation
+      }
       console.error('Login error:', err)
       toast.error('Error al conectar con el servidor. Inténtalo de nuevo.')
       setLoading(false)
