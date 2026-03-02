@@ -11,7 +11,10 @@ import Button from '@/components/ui/Button'
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
   const [recentTasks, setRecentTasks] = useState([])
+  const [error, setError] = useState(null)
   const supabase = createClient()
+
+  const emptyStats = { total: 0, byEstado: { pendiente: 0, en_revision: 0, aprobada: 0 }, totalPagado: 0, months: [], topColabs: [] }
 
   useEffect(() => {
     async function loadStats() {
@@ -25,12 +28,19 @@ export default function AdminDashboard() {
             .limit(5),
         ])
 
+        if (recentRes.error) console.error('Recent tasks error:', recentRes.error.message)
+
         if (!statsRes.error) setStats(statsRes.data)
-        else setStats({ total: 0, byEstado: { pendiente: 0, en_revision: 0, aprobada: 0 }, totalPagado: 0, months: [], topColabs: [] })
+        else {
+          console.error('Admin stats error:', statsRes.error)
+          setError(statsRes.error)
+          setStats(emptyStats)
+        }
         setRecentTasks(recentRes.data || [])
       } catch (e) {
         console.error('Error loading admin stats:', e)
-        setStats({ total: 0, byEstado: { pendiente: 0, en_revision: 0, aprobada: 0 }, totalPagado: 0, months: [], topColabs: [] })
+        setError(e?.message || 'Error al cargar estadísticas')
+        setStats(emptyStats)
       }
     }
     loadStats()
@@ -59,6 +69,13 @@ export default function AdminDashboard() {
           <Button>Nueva Tarea</Button>
         </Link>
       </div>
+
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+          <p className="text-sm font-medium text-red-800">Error: {error}</p>
+          <p className="text-xs text-red-600 mt-1">Intenta recargar la página o cerrar sesión y volver a ingresar.</p>
+        </div>
+      )}
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

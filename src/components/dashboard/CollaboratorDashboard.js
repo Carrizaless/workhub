@@ -16,10 +16,16 @@ export default function CollaboratorDashboard() {
   const [personalStats, setPersonalStats] = useState(null)
   const [myTasks, setMyTasks] = useState([])
   const [availableTasks, setAvailableTasks] = useState([])
+  const [error, setError] = useState(null)
   const supabase = createClient()
 
   useEffect(() => {
-    if (!user) return
+    if (!user) {
+      // No user available — show empty state instead of infinite skeleton
+      setStats({ activas: 0, disponibles: 0, saldo: 0 })
+      setError('No se pudo obtener la sesión del usuario.')
+      return
+    }
 
     async function loadData() {
       try {
@@ -40,6 +46,9 @@ export default function CollaboratorDashboard() {
           getCollaboratorStats(user.id),
         ])
 
+        if (myTasksRes.error) console.error('Tasks query error:', myTasksRes.error.message)
+        if (availableRes.error) console.error('Available query error:', availableRes.error.message)
+
         const tasks = myTasksRes.data || []
         setMyTasks(tasks)
         setAvailableTasks(availableRes.data || [])
@@ -53,6 +62,7 @@ export default function CollaboratorDashboard() {
         if (!personalRes.error) setPersonalStats(personalRes.data)
       } catch (e) {
         console.error('Error loading dashboard data:', e)
+        setError(e?.message || 'Error al cargar datos del dashboard')
         setStats({ activas: 0, disponibles: 0, saldo: profile?.saldo_actual || 0 })
       }
     }
@@ -72,6 +82,13 @@ export default function CollaboratorDashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+          <p className="text-sm font-medium text-red-800">Error: {error}</p>
+          <p className="text-xs text-red-600 mt-1">Intenta recargar la página o cerrar sesión y volver a ingresar.</p>
+        </div>
+      )}
 
       {/* Main stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
