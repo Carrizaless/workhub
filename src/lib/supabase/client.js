@@ -10,8 +10,7 @@ export function createClient() {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!url || !key) {
-    console.warn('Supabase not configured: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY missing')
-    // Return a no-op proxy that won't crash on any method chain
+    console.warn('Supabase not configured: missing NEXT_PUBLIC_SUPABASE_URL or KEY')
     return createNoOpClient()
   }
 
@@ -20,61 +19,69 @@ export function createClient() {
 }
 
 /**
- * Creates a proxy-based no-op client that handles ANY method chain
- * without crashing. Every method returns the proxy itself (for chaining)
- * or a safe default value for terminal methods.
+ * No-op Supabase client that handles any method chain.
+ * Uses Proxy so that any chain like .from().select().eq().neq().order()
+ * resolves to { data: null, error: null, count: 0 } when awaited.
  */
 function createNoOpClient() {
-  const handler = {
-    get(target, prop) {
-      // Terminal async methods - return safe defaults
-      if (prop === 'then') return undefined // prevents treating proxy as Promise
-      if (prop === 'single') return async () => ({ data: null, error: null })
-      if (prop === 'limit') return async () => ({ data: [], error: null })
-      if (prop === 'insert') return () => createChainProxy()
-      if (prop === 'update') return () => createChainProxy()
-      if (prop === 'delete') return () => createChainProxy()
-      if (prop === 'upload') return async () => ({ error: { message: 'Supabase no configurado' } })
-      if (prop === 'remove') return async () => ({ error: { message: 'Supabase no configurado' } })
-      if (prop === 'createSignedUrl') return async () => ({ error: { message: 'Supabase no configurado' } })
-      if (prop === 'createSignedUploadUrl') return async () => ({ error: { message: 'Supabase no configurado' } })
-      if (prop === 'subscribe') return () => createChainProxy()
-      if (prop === 'unsubscribe') return () => {}
-      if (prop === 'removeChannel') return () => {}
-
-      // Auth methods
-      if (prop === 'auth') {
-        return {
-          getUser: async () => ({ data: { user: null }, error: null }),
-          getSession: async () => ({ data: { session: null }, error: null }),
-          signInWithPassword: async () => ({
-            error: { message: 'Supabase no configurado' },
-          }),
-          signOut: async () => ({}),
-          onAuthStateChange: () => ({
-            data: { subscription: { unsubscribe: () => {} } },
-          }),
+  function createChain() {
+    const proxy = new Proxy(function () {}, {
+      // Handle property access (e.g. .select, .eq, .from, .auth)
+      get(_target, prop) {
+        // When awaited: resolve to safe query result
+        if (prop === 'then') {
+          return (resolve) => {
+            if (resolve) resolve({ data: null, error: null, count: 0 })
+          }
         }
-      }
+        if (prop === 'catch' || prop === 'finally') {
+          return () => proxy
+        }
 
-      // Storage
-      if (prop === 'storage') {
-        return { from: () => createChainProxy() }
-      }
+        // Auth namespace
+        if (prop === 'auth') {
+          return {
+            getUser: async () => ({ data: { user: null }, error: null }),
+            getSession: async () => ({ data: { session: null }, error: null }),
+            signInWithPassword: async () => ({
+              error: { message: 'Supabase no configurado' },
+            }),
+            signOut: async () => ({}),
+            onAuthStateChange: () => ({
+              data: { subscription: { unsubscribe: () => {} } },
+            }),
+          }
+        }
 
-      // RPC
-      if (prop === 'rpc') {
-        return async () => ({ data: null, error: { message: 'Supabase no configurado' } })
-      }
+        // Storage namespace
+        if (prop === 'storage') {
+          return {
+            from: () => createChain(),
+          }
+        }
 
-      // Everything else: return a function that returns a chainable proxy
-      return (..._args) => createChainProxy()
-    },
+        // RPC
+        if (prop === 'rpc') {
+          return async () => ({ data: null, error: { message: 'Supabase no configurado' } })
+        }
+
+        // removeChannel
+        if (prop === 'removeChannel') {
+          return () => {}
+        }
+
+        // Everything else: return a function that continues the chain
+        return (..._args) => createChain()
+      },
+
+      // Handle direct function call (e.g. from('table'), select('*'))
+      apply() {
+        return createChain()
+      },
+    })
+
+    return proxy
   }
 
-  function createChainProxy() {
-    return new Proxy({}, handler)
-  }
-
-  return new Proxy({}, handler)
+  return createChain()
 }
