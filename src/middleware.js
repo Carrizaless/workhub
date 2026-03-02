@@ -37,9 +37,21 @@ export async function middleware(request) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user ?? null
+  } catch {
+    // Auth check failed (network error, timeout, etc.)
+    // Treat as unauthenticated — redirect to login unless already there
+    const isLoginPage = request.nextUrl.pathname === '/login'
+    if (!isLoginPage) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
 
   const isLoginPage = request.nextUrl.pathname === '/login'
 
