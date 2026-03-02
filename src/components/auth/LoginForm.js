@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { login } from '@/actions/auth'
 import toast from 'react-hot-toast'
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -18,13 +20,14 @@ export default function LoginForm() {
       if (result?.error) {
         toast.error(result.error)
         setLoading(false)
+        return
       }
-      // If no error, redirect() was called server-side — Next.js handles navigation
+
+      if (result?.success) {
+        // Full page reload to ensure fresh server-side session
+        window.location.href = '/dashboard'
+      }
     } catch (err) {
-      // NEXT_REDIRECT is thrown internally by Next.js redirect() — not a real error
-      if (err?.digest?.includes('NEXT_REDIRECT')) {
-        return // Let Next.js handle the navigation
-      }
       console.error('Login error:', err)
       toast.error('Error al conectar con el servidor. Inténtalo de nuevo.')
       setLoading(false)

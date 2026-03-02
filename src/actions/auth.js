@@ -56,7 +56,8 @@ export async function login(formData) {
     return { error: msg }
   }
 
-  redirect('/dashboard')
+  // Return success — client handles navigation
+  return { success: true }
 }
 
 export async function logout() {
