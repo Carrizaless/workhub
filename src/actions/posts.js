@@ -10,7 +10,7 @@ export async function getPosts({ page = 1, pageSize = 8 } = {}) {
 
     const { data, error, count } = await supabase
       .from('posts')
-      .select('id, titulo, contenido, imagen_url, created_at, creado_por:users!creado_por(nombre, email)', { count: 'exact' })
+      .select('id, titulo, contenido, created_at, creado_por:users!creado_por(nombre, email)', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(from, to)
 
@@ -31,7 +31,7 @@ export async function getPost(id) {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('posts')
-      .select('id, titulo, contenido, imagen_url, created_at, updated_at, creado_por:users!creado_por(nombre, email)')
+      .select('id, titulo, contenido, created_at, updated_at, creado_por:users!creado_por(nombre, email)')
       .eq('id', id)
       .single()
 
@@ -79,21 +79,6 @@ export async function updatePost(id, formData) {
     const { error } = await supabase
       .from('posts')
       .update({ titulo, contenido })
-      .eq('id', id)
-
-    if (error) return { error: error.message }
-    return { success: true }
-  } catch {
-    return { error: 'Error de conexión.' }
-  }
-}
-
-export async function updatePostImage(id, imageUrl) {
-  try {
-    const supabase = await createClient()
-    const { error } = await supabase
-      .from('posts')
-      .update({ imagen_url: imageUrl })
       .eq('id', id)
 
     if (error) return { error: error.message }
