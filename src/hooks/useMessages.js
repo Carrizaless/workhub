@@ -2,37 +2,18 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getMessages, sendMessageAction, getMessageById } from '@/actions/messages'
 
 export function useMessages({ taskId = null, isSoporte = false, otherUserId = null, userId = null }) {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
 
-  // Initial fetch
+  // Initial fetch via server action
   useEffect(() => {
     async function loadMessages() {
       try {
-        let query = supabase
-          .from('messages')
-          .select('*, remitente:users!remitente_id(id, email, nombre, avatar_url)')
-          .order('created_at', { ascending: true })
-
-        if (taskId) {
-          query = query.eq('tarea_id', taskId)
-        } else if (isSoporte && otherUserId && userId) {
-          // DM mode: conversation between userId and otherUserId
-          query = query
-            .eq('es_soporte', true)
-            .is('tarea_id', null)
-            .or(
-              `and(remitente_id.eq.${userId},destinatario_id.eq.${otherUserId}),and(remitente_id.eq.${otherUserId},destinatario_id.eq.${userId})`
-            )
-        } else if (isSoporte) {
-          query = query.eq('es_soporte', true).is('tarea_id', null)
-        }
-
-        const { data } = await query
-        setMessages(data || [])
+        const result = await getMessages({ taskId, isSoporte, otherUserId })
+        setMessages(result.data || [])
       } catch (e) {
         console.error('useMessages load error:', e)
         setMessages([])
@@ -43,7 +24,7 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
     loadMessages()
   }, [taskId, isSoporte, otherUserId, userId])
 
-  // Realtime subscription
+  // Realtime subscription (for receiving new messages)
   useEffect(() => {
     const channelKey = taskId
       ? `task-${taskId}`
@@ -59,6 +40,7 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
 
     let channel
     try {
+      const supabase = createClient()
       channel = supabase
         .channel(`messages-${channelKey}`)
         .on(
@@ -80,16 +62,15 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
                 if (!isRelevant) return
               }
 
-              const { data } = await supabase
-                .from('messages')
-                .select('*, remitente:users!remitente_id(id, email, nombre, avatar_url)')
-                .eq('id', payload.new.id)
-                .single()
+              // Fetch the full message with joins via server action
+              const result = await getMessageById(payload.new.id)
 
-              if (data) {
+              if (result.data) {
                 setMessages((prev) => {
-                  if (prev.some((m) => m.id === data.id)) return prev
-                  return [...prev, data]
+                  if (prev.some((m) => m.id === result.data.id)) return prev
+                  // Remove optimistic version if it exists
+                  const filtered = prev.filter((m) => !String(m.id).startsWith('temp-'))
+                  return [...filtered, result.data]
                 })
               }
             } catch (e) {
@@ -103,48 +84,52 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
     }
 
     return () => {
-      try { if (channel) supabase.removeChannel(channel) } catch {}
+      try {
+        if (channel) {
+          const supabase = createClient()
+          supabase.removeChannel(channel)
+        }
+      } catch {}
     }
   }, [taskId, isSoporte, otherUserId, userId])
 
   const sendMessage = useCallback(
     async (contenido) => {
-      if (!contenido.trim()) return
+      if (!contenido.trim() || !userId) return
+
+      // Optimistic insert
+      const optimistic = {
+        id: `temp-${Date.now()}`,
+        contenido: contenido.trim(),
+        remitente_id: userId,
+        created_at: new Date().toISOString(),
+        leido: false,
+        es_soporte: isSoporte,
+        remitente: { id: userId, email: '', nombre: '', avatar_url: null },
+      }
+      setMessages((prev) => [...prev, optimistic])
 
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-        if (!user) return
+        const result = await sendMessageAction({ contenido, taskId, isSoporte, otherUserId })
 
-        const messageData = {
-          contenido: contenido.trim(),
-          remitente_id: user.id,
-          es_soporte: isSoporte,
-          ...(taskId ? { tarea_id: taskId } : {}),
-          ...(isSoporte && otherUserId ? { destinatario_id: otherUserId } : {}),
-        }
-
-        // Optimistic insert
-        const optimistic = {
-          ...messageData,
-          id: `temp-${Date.now()}`,
-          created_at: new Date().toISOString(),
-          leido: false,
-          remitente: { id: user.id, email: user.email, nombre: '', avatar_url: null },
-        }
-        setMessages((prev) => [...prev, optimistic])
-
-        const { error } = await supabase.from('messages').insert(messageData)
-
-        if (error) {
+        if (result.error) {
+          // Remove optimistic message on error
           setMessages((prev) => prev.filter((m) => m.id !== optimistic.id))
+          console.error('Send message error:', result.error)
+        } else if (result.data) {
+          // Replace optimistic with real message
+          setMessages((prev) => {
+            const filtered = prev.filter((m) => m.id !== optimistic.id)
+            if (filtered.some((m) => m.id === result.data.id)) return filtered
+            return [...filtered, result.data]
+          })
         }
       } catch (e) {
+        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id))
         console.error('useMessages send error:', e)
       }
     },
-    [supabase, taskId, isSoporte, otherUserId]
+    [taskId, isSoporte, otherUserId, userId]
   )
 
   return { messages, loading, sendMessage }
