@@ -101,14 +101,14 @@ export default function TaskForm() {
       />
 
       <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-foreground">
           Descripcion
         </label>
         <textarea
           name="descripcion"
           rows={4}
           placeholder="Describe los detalles de la tarea..."
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 resize-none"
+          className="w-full rounded-xl border border-border bg-muted-bg px-4 py-3 text-sm text-foreground placeholder-muted outline-none transition-all focus:border-blue-500 focus:bg-card focus:ring-2 focus:ring-blue-500/20 resize-none"
         />
       </div>
 
@@ -131,12 +131,12 @@ export default function TaskForm() {
 
       {/* File attachments */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-foreground">
           Documentos adjuntos{' '}
-          <span className="font-normal text-gray-400">(opcional)</span>
+          <span className="font-normal text-muted">(opcional)</span>
         </label>
 
-        <div className="relative rounded-xl border-2 border-dashed border-gray-200 p-5 text-center hover:border-blue-300 transition-colors cursor-pointer">
+        <div className="relative rounded-xl border-2 border-dashed border-border p-5 text-center hover:border-blue-300 transition-colors cursor-pointer">
           <input
             type="file"
             onChange={handleFileChange}
@@ -146,7 +146,7 @@ export default function TaskForm() {
           />
           <div className="space-y-1.5 pointer-events-none">
             <svg
-              className="mx-auto h-7 w-7 text-gray-400"
+              className="mx-auto h-7 w-7 text-muted"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -158,8 +158,8 @@ export default function TaskForm() {
                 d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
               />
             </svg>
-            <p className="text-sm text-gray-500">Haz clic o arrastra archivos aquí</p>
-            <p className="text-xs text-gray-400">PDF, Word, PNG, JPG · max 50MB</p>
+            <p className="text-sm text-muted">Haz clic o arrastra archivos aquí</p>
+            <p className="text-xs text-muted">PDF, Word, PNG, JPG · max 50MB</p>
           </div>
         </div>
 
@@ -168,19 +168,19 @@ export default function TaskForm() {
             {pendingFiles.map((file, i) => (
               <li
                 key={i}
-                className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 px-3 py-2.5 border border-gray-100"
+                className="flex items-center justify-between gap-3 rounded-xl bg-muted-bg px-3 py-2.5 border border-border"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <FileTypeBadge type={file.type} />
-                  <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                  <span className="text-xs text-gray-400 flex-shrink-0">
+                  <span className="text-sm text-foreground truncate">{file.name}</span>
+                  <span className="text-xs text-muted flex-shrink-0">
                     {(file.size / 1024 / 1024).toFixed(1)} MB
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => removeFile(i)}
-                  className="flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors"
+                  className="flex-shrink-0 text-muted hover:text-red-500 transition-colors"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -215,5 +215,5 @@ function FileTypeBadge({ type }) {
     return <span className="flex-shrink-0 rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-600">DOC</span>
   if (type.startsWith('image/'))
     return <span className="flex-shrink-0 rounded-md bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-600">IMG</span>
-  return <span className="flex-shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">FILE</span>
+  return <span className="flex-shrink-0 rounded-md bg-muted-bg px-1.5 py-0.5 text-xs font-medium text-muted">FILE</span>
 }

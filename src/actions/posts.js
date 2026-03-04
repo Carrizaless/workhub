@@ -70,6 +70,12 @@ export async function createPost(formData) {
 export async function updatePost(id, formData) {
   try {
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado' }
+
+    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { error: 'Solo administradores pueden editar publicaciones' }
+
     const titulo = formData.get('titulo')?.toString().trim()
     const contenido = formData.get('contenido')?.toString().trim()
 
@@ -91,6 +97,12 @@ export async function updatePost(id, formData) {
 export async function deletePost(id) {
   try {
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado' }
+
+    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { error: 'Solo administradores pueden eliminar publicaciones' }
+
     const { error } = await supabase
       .from('posts')
       .delete()

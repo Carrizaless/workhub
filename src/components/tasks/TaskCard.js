@@ -21,29 +21,29 @@ export default function TaskCard({ task, isAdmin = false, isAssignedToMe = false
             isAdmin={isAdmin}
             isAssignedToMe={isAssignedToMe}
           />
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-foreground">
             {formatCurrency(task.precio)}
           </span>
         </div>
 
-        <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-2">
+        <h3 className="text-sm font-medium text-foreground mb-1 line-clamp-2">
           {task.titulo}
         </h3>
 
         {task.descripcion && (
-          <p className="text-xs text-gray-500 line-clamp-2 mb-3">
+          <p className="text-xs text-muted line-clamp-2 mb-3">
             {task.descripcion}
           </p>
         )}
 
-        <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
+        <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
           {task.fecha_limite ? (
             <span
               className={`text-xs ${
                 deadlineStatus === 'vencida' ? 'text-red-500 font-medium' :
                 deadlineStatus === 'urgente' ? 'text-red-400 font-medium' :
                 deadlineStatus === 'proxima' ? 'text-yellow-600 font-medium' :
-                'text-gray-400'
+                'text-muted'
               }`}
             >
               {deadlineStatus === 'vencida' ? 'Vencida: ' :
@@ -52,7 +52,7 @@ export default function TaskCard({ task, isAdmin = false, isAssignedToMe = false
               {formatDate(task.fecha_limite)}
             </span>
           ) : (
-            <span className="text-xs text-gray-400">Sin fecha límite</span>
+            <span className="text-xs text-muted">Sin fecha límite</span>
           )}
 
           {/* Show assignee name on "others" section */}
@@ -62,7 +62,7 @@ export default function TaskCard({ task, isAdmin = false, isAssignedToMe = false
             </span>
           ) : (
             task.archivos_adjuntos?.length > 0 && (
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted">
                 {task.archivos_adjuntos.length} archivo
                 {task.archivos_adjuntos.length !== 1 ? 's' : ''}
               </span>

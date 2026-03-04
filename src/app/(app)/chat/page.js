@@ -46,8 +46,8 @@ export default function ChatPage() {
   if (loading || loadingUsers) {
     return (
       <div className="space-y-4">
-        <div className="h-8 w-40 animate-pulse rounded-xl bg-gray-100" />
-        <div className="h-96 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-8 w-40 animate-pulse rounded-xl bg-muted-bg" />
+        <div className="h-96 animate-pulse rounded-2xl bg-muted-bg" />
       </div>
     )
   }
@@ -57,14 +57,14 @@ export default function ChatPage() {
     return (
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Mensajes</h1>
-          <p className="mt-1 text-sm text-gray-500">Conversación con el administrador</p>
+          <h1 className="text-2xl font-semibold text-foreground">Mensajes</h1>
+          <p className="mt-1 text-sm text-muted">Conversación con el administrador</p>
         </div>
         <Card>
           {adminId ? (
             <ChatPanel isSoporte otherUserId={adminId} />
           ) : (
-            <p className="text-sm text-gray-400 text-center py-8">No se encontró el administrador.</p>
+            <p className="text-sm text-muted text-center py-8">No se encontró el administrador.</p>
           )}
         </Card>
       </div>
@@ -75,19 +75,19 @@ export default function ChatPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Mensajes</h1>
-        <p className="mt-1 text-sm text-gray-500">Conversaciones directas con colaboradores</p>
+        <h1 className="text-2xl font-semibold text-foreground">Mensajes</h1>
+        <p className="mt-1 text-sm text-muted">Conversaciones directas con colaboradores</p>
       </div>
 
       <div className="flex gap-4 h-[600px]">
         {/* Collaborator list */}
-        <div className="w-64 flex-shrink-0 rounded-2xl border border-gray-200 bg-white overflow-y-auto">
-          <div className="p-3 border-b border-gray-100">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Colaboradores</p>
+        <div className="w-64 flex-shrink-0 rounded-2xl border border-border bg-card transition-colors overflow-y-auto">
+          <div className="p-3 border-b border-border">
+            <p className="text-xs font-medium text-muted uppercase tracking-wide">Colaboradores</p>
           </div>
 
           {collaborators.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8 px-3">
+            <p className="text-sm text-muted text-center py-8 px-3">
               No hay colaboradores registrados.
             </p>
           ) : (
@@ -103,8 +103,8 @@ export default function ChatPage() {
                       className={clsx(
                         'w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors',
                         isSelected
-                          ? 'bg-gray-100 text-gray-900'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          ? 'bg-muted-bg text-foreground'
+                          : 'text-muted hover:bg-muted-bg hover:text-foreground'
                       )}
                     >
                       {collab.avatar_url ? (
@@ -123,7 +123,7 @@ export default function ChatPage() {
                           {collab.nombre || collab.email}
                         </p>
                         {collab.nombre && (
-                          <p className="text-xs text-gray-400 truncate">{collab.email}</p>
+                          <p className="text-xs text-muted truncate">{collab.email}</p>
                         )}
                       </div>
                     </button>
@@ -135,10 +135,10 @@ export default function ChatPage() {
         </div>
 
         {/* Chat area */}
-        <div className="flex-1 rounded-2xl border border-gray-200 bg-white overflow-hidden flex flex-col">
+        <div className="flex-1 rounded-2xl border border-border bg-card transition-colors overflow-hidden flex flex-col">
           {selectedCollab ? (
             <>
-              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-border">
                 {selectedCollab.avatar_url ? (
                   <img
                     src={selectedCollab.avatar_url}
@@ -151,11 +151,11 @@ export default function ChatPage() {
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-foreground">
                     {selectedCollab.nombre || selectedCollab.email}
                   </p>
                   {selectedCollab.nombre && (
-                    <p className="text-xs text-gray-400">{selectedCollab.email}</p>
+                    <p className="text-xs text-muted">{selectedCollab.email}</p>
                   )}
                 </div>
               </div>
@@ -169,7 +169,7 @@ export default function ChatPage() {
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted">
                 Selecciona un colaborador para ver la conversación.
               </p>
             </div>

@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import DOMPurify from 'isomorphic-dompurify'
 
 export default function BlogPostPage() {
   const { id } = useParams()
@@ -47,8 +48,8 @@ export default function BlogPostPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <div className="h-8 w-64 animate-pulse rounded-xl bg-gray-100" />
-        <div className="h-96 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-8 w-64 animate-pulse rounded-xl bg-muted-bg" />
+        <div className="h-96 animate-pulse rounded-2xl bg-muted-bg" />
       </div>
     )
   }
@@ -57,7 +58,7 @@ export default function BlogPostPage() {
     return (
       <div className="mx-auto max-w-2xl">
         <Card>
-          <p className="text-sm text-gray-500 text-center py-8">Publicación no encontrada.</p>
+          <p className="text-sm text-muted text-center py-8">Publicación no encontrada.</p>
         </Card>
       </div>
     )
@@ -71,7 +72,7 @@ export default function BlogPostPage() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          className="flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -113,17 +114,17 @@ export default function BlogPostPage() {
       <Card>
         <div className="space-y-4">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">{post.titulo}</h1>
-            <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-400">
+            <h1 className="text-xl font-semibold text-foreground">{post.titulo}</h1>
+            <div className="flex items-center gap-2 mt-1.5 text-xs text-muted">
               <span>{author}</span>
               <span>·</span>
               <span>{date}</span>
             </div>
           </div>
-          <hr className="border-gray-100" />
+          <hr className="border-border" />
           <div
             className="blog-html"
-            dangerouslySetInnerHTML={{ __html: post.contenido }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.contenido) }}
           />
         </div>
       </Card>

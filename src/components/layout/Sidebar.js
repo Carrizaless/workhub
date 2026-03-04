@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@/contexts/UserContext'
 import { useUnreadDMs } from '@/hooks/useUnreadCount'
@@ -77,9 +78,11 @@ export default function Sidebar() {
       <div className="border-t border-border p-4">
         <div className="flex items-center gap-3 mb-3">
           {profile?.avatar_url ? (
-            <img
+            <Image
               src={profile.avatar_url}
               alt="Avatar"
+              width={36}
+              height={36}
               className="h-9 w-9 rounded-full object-cover flex-shrink-0"
             />
           ) : (

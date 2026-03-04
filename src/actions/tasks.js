@@ -126,6 +126,18 @@ export async function updateTaskFiles(taskId, files) {
   const supabase = await createClient()
 
   try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado' }
+
+    // Verify user is admin or assigned to this task
+    const { data: task } = await supabase.from('tasks').select('asignado_a').eq('id', taskId).single()
+    if (!task) return { error: 'Tarea no encontrada' }
+
+    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    if (profile?.role !== 'admin' && task.asignado_a !== user.id) {
+      return { error: 'No tienes permiso para modificar archivos de esta tarea' }
+    }
+
     const { error } = await supabase
       .from('tasks')
       .update({ archivos_adjuntos: files })

@@ -61,16 +61,16 @@ export default function WalletPage() {
   if (userLoading || loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-40 animate-pulse rounded-xl bg-gray-100" />
-        <div className="h-32 animate-pulse rounded-2xl bg-gray-200" />
-        <div className="h-64 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-8 w-40 animate-pulse rounded-xl bg-muted-bg" />
+        <div className="h-32 animate-pulse rounded-2xl bg-muted-bg" />
+        <div className="h-64 animate-pulse rounded-2xl bg-muted-bg" />
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">
+      <h1 className="text-2xl font-semibold text-foreground">
         {isAdmin ? 'Billetera General' : 'Mi Billetera'}
       </h1>
 
@@ -79,16 +79,16 @@ export default function WalletPage() {
       {/* Binance payment info — collaborator only */}
       {!isAdmin && (
         <Card>
-          <h2 className="text-sm font-medium text-gray-900 mb-1">
+          <h2 className="text-sm font-medium text-foreground mb-1">
             Datos de Pago
           </h2>
-          <p className="text-xs text-gray-500 mb-4">
+          <p className="text-xs text-muted mb-4">
             Ingresa tu Binance ID o correo de Binance para que el administrador
             pueda enviarte tus pagos.
           </p>
           <form onSubmit={handleSaveBinance} className="flex gap-3 items-end">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs font-medium text-foreground mb-1.5">
                 Binance ID o correo
               </label>
               <input
@@ -96,7 +96,7 @@ export default function WalletPage() {
                 value={binanceId}
                 onChange={(e) => setBinanceId(e.target.value)}
                 placeholder="Ej. 123456789 o tu@email.com"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-xl border border-border bg-muted-bg px-4 py-2.5 text-sm text-foreground placeholder-muted outline-none transition-all focus:border-blue-500 focus:bg-card focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <Button type="submit" disabled={savingBinance}>
@@ -115,7 +115,7 @@ export default function WalletPage() {
       )}
 
       <Card>
-        <h2 className="text-sm font-medium text-gray-900 mb-4">
+        <h2 className="text-sm font-medium text-foreground mb-4">
           Historial de Transacciones
         </h2>
         <TransactionTable transactions={transactions} />

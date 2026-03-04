@@ -41,10 +41,10 @@ export default function AdminDashboard() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-2xl bg-gray-100" />
+            <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted-bg" />
           ))}
         </div>
-        <div className="h-48 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-48 animate-pulse rounded-2xl bg-muted-bg" />
       </div>
     )
   }
@@ -54,7 +54,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
         <Link href="/tasks/new">
           <Button>Nueva Tarea</Button>
         </Link>
@@ -92,14 +92,14 @@ export default function AdminDashboard() {
       </div>
 
       {/* Monthly chart */}
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-6">
-        <h2 className="text-sm font-medium text-gray-900 mb-4">
+      <div className="rounded-2xl border border-border bg-card shadow-sm p-6 transition-colors">
+        <h2 className="text-sm font-medium text-foreground mb-4">
           Tareas completadas por mes
         </h2>
         <div className="flex items-end gap-2 h-24">
           {stats.months.map((m) => (
             <div key={`${m.year}-${m.month}`} className="flex flex-1 flex-col items-center gap-1">
-              <span className="text-xs text-gray-500 font-medium">
+              <span className="text-xs text-muted font-medium">
                 {m.count > 0 ? m.count : ''}
               </span>
               <div
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
                   opacity: m.count > 0 ? 1 : 0.2,
                 }}
               />
-              <span className="text-[10px] text-gray-400 capitalize">{m.label}</span>
+              <span className="text-[10px] text-muted capitalize">{m.label}</span>
             </div>
           ))}
         </div>
@@ -117,22 +117,22 @@ export default function AdminDashboard() {
 
       {/* Top collaborators */}
       {stats.topColabs.some((c) => c.completadas > 0) && (
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="border-b border-gray-100 px-6 py-4">
-            <h2 className="text-sm font-medium text-gray-900">Top Colaboradores</h2>
+        <div className="rounded-2xl border border-border bg-card shadow-sm transition-colors">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-sm font-medium text-foreground">Top Colaboradores</h2>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-border">
             {stats.topColabs.filter((c) => c.completadas > 0).map((c, i) => (
               <div key={c.id} className="flex items-center justify-between px-6 py-3">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-500">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted-bg text-xs font-bold text-muted">
                     {i + 1}
                   </span>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-foreground">
                     {c.nombre || c.email}
                   </p>
                 </div>
-                <span className="text-sm text-gray-500">{c.completadas} tareas</span>
+                <span className="text-sm text-muted">{c.completadas} tareas</span>
               </div>
             ))}
           </div>
@@ -140,30 +140,30 @@ export default function AdminDashboard() {
       )}
 
       {/* Recent tasks */}
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="border-b border-gray-100 px-6 py-4">
-          <h2 className="text-sm font-medium text-gray-900">Tareas Recientes</h2>
+      <div className="rounded-2xl border border-border bg-card shadow-sm transition-colors">
+        <div className="border-b border-border px-6 py-4">
+          <h2 className="text-sm font-medium text-foreground">Tareas Recientes</h2>
         </div>
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-border">
           {recentTasks.map((task) => (
             <Link
               key={task.id}
               href={`/tasks/${task.id}`}
-              className="flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between px-6 py-3 hover:bg-muted-bg transition-colors"
             >
               <div>
-                <p className="text-sm font-medium text-gray-900">{task.titulo}</p>
-                <p className="text-xs text-gray-500 capitalize">
+                <p className="text-sm font-medium text-foreground">{task.titulo}</p>
+                <p className="text-xs text-muted capitalize">
                   {task.estado.replace(/_/g, ' ')}
                 </p>
               </div>
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-muted">
                 {formatCurrency(task.precio)}
               </span>
             </Link>
           ))}
           {recentTasks.length === 0 && (
-            <p className="px-6 py-8 text-center text-sm text-gray-400">
+            <p className="px-6 py-8 text-center text-sm text-muted">
               No hay tareas aún
             </p>
           )}

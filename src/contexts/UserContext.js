@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const UserContext = createContext(null)
@@ -10,7 +10,9 @@ export function UserProvider({ children, initialUser = null, initialProfile = nu
   const [user, setUser] = useState(initialUser)
   const [profile, setProfile] = useState(initialProfile)
   const [loading, setLoading] = useState(!initialUser)
-  const supabase = createClient()
+  const supabaseRef = useRef(null)
+  if (!supabaseRef.current) supabaseRef.current = createClient()
+  const supabase = supabaseRef.current
 
   useEffect(() => {
     // If we already have initial data from server, skip client-side fetch

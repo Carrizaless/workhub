@@ -3,6 +3,11 @@
 import { createClient } from '@/lib/supabase/server'
 
 const CONN_ERROR = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.'
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function isValidUUID(val) {
+  return typeof val === 'string' && UUID_RE.test(val)
+}
 
 export async function getMessages({ taskId = null, isSoporte = false, otherUserId = null }) {
   const supabase = await createClient()
@@ -19,8 +24,10 @@ export async function getMessages({ taskId = null, isSoporte = false, otherUserI
       .order('created_at', { ascending: true })
 
     if (taskId) {
+      if (!isValidUUID(taskId)) return { error: 'ID de tarea inválido', data: [] }
       query = query.eq('tarea_id', taskId)
     } else if (isSoporte && otherUserId) {
+      if (!isValidUUID(otherUserId)) return { error: 'ID de usuario inválido', data: [] }
       query = query
         .eq('es_soporte', true)
         .is('tarea_id', null)
@@ -53,7 +60,7 @@ export async function sendMessageAction({ contenido, taskId = null, isSoporte = 
       remitente_id: user.id,
       es_soporte: isSoporte,
       ...(taskId ? { tarea_id: taskId } : {}),
-      ...(isSoporte && otherUserId ? { destinatario_id: otherUserId } : {}),
+      ...(isSoporte && otherUserId && isValidUUID(otherUserId) ? { destinatario_id: otherUserId } : {}),
       ...(archivos && archivos.length > 0 ? { archivos } : {}),
     }
 
@@ -213,8 +220,10 @@ export async function markChatAsRead({ taskId = null, isSoporte = false, otherUs
       .eq('leido', false)
 
     if (taskId) {
+      if (!isValidUUID(taskId)) return { error: 'ID inválido' }
       query = query.eq('tarea_id', taskId)
     } else if (isSoporte && otherUserId) {
+      if (!isValidUUID(otherUserId)) return { error: 'ID inválido' }
       query = query
         .eq('es_soporte', true)
         .or(`destinatario_id.eq.${user.id},remitente_id.eq.${otherUserId}`)

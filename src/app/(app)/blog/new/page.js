@@ -49,13 +49,13 @@ export default function NewPostPage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-muted hover:text-foreground transition-colors"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
         </button>
-        <h1 className="text-2xl font-semibold text-gray-900">Nueva Publicación</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Nueva Publicación</h1>
       </div>
 
       <Card>
@@ -69,18 +69,18 @@ export default function NewPostPage() {
           />
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Contenido{' '}
-              <span className="font-normal text-gray-400">(HTML)</span>
+              <span className="font-normal text-muted">(HTML)</span>
             </label>
             <textarea
               value={contenido}
               onChange={(e) => setContenido(e.target.value)}
               rows={18}
               placeholder="<h2>Título de sección</h2>&#10;<p>Párrafo de contenido...</p>&#10;<img src=&quot;https://...&quot; alt=&quot;&quot; />"
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-mono text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 resize-y"
+              className="w-full rounded-xl border border-border bg-muted-bg px-4 py-3 text-sm font-mono text-foreground placeholder-muted outline-none transition-all focus:border-blue-500 focus:bg-card focus:ring-2 focus:ring-blue-500/20 resize-y"
             />
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted">
               Escribe o pega HTML. Etiquetas soportadas: h1–h3, p, ul, ol, li, strong, em, a, img, blockquote, pre, code, hr.
             </p>
           </div>

@@ -48,7 +48,7 @@ export default function FileList({ taskId, files = [], canDelete = false, onUpda
 
   if (!files || files.length === 0) {
     return (
-      <p className="text-sm text-gray-400">No hay archivos adjuntos</p>
+      <p className="text-sm text-muted">No hay archivos adjuntos</p>
     )
   }
 
@@ -57,13 +57,13 @@ export default function FileList({ taskId, files = [], canDelete = false, onUpda
       {files.map((file, i) => (
         <div
           key={file.path || i}
-          className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"
+          className="flex items-center justify-between rounded-xl bg-muted-bg px-4 py-3"
         >
           <div className="flex items-center gap-3 min-w-0">
             <span className="text-lg shrink-0">
               {fileIcons[file.type] || '📎'}
             </span>
-            <span className="text-sm text-gray-700 truncate">
+            <span className="text-sm text-foreground truncate">
               {file.name || file.path?.split('/').pop() || 'Archivo'}
             </span>
           </div>
@@ -72,7 +72,7 @@ export default function FileList({ taskId, files = [], canDelete = false, onUpda
             <button
               onClick={() => handleDownload(file)}
               disabled={loading === file.path}
-              className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors disabled:opacity-50"
+              className="rounded-lg p-1.5 text-muted hover:bg-muted-bg hover:text-foreground transition-colors disabled:opacity-50"
               title="Descargar"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -84,7 +84,7 @@ export default function FileList({ taskId, files = [], canDelete = false, onUpda
               <button
                 onClick={() => handleDelete(file)}
                 disabled={loading === file.path}
-                className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors disabled:opacity-50"
+                className="rounded-lg p-1.5 text-muted hover:bg-red-50 hover:text-red-500 transition-colors disabled:opacity-50"
                 title="Eliminar"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">

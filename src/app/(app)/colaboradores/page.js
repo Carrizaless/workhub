@@ -82,10 +82,10 @@ export default function ColaboradoresPage() {
   if (loading || userLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-52 animate-pulse rounded-xl bg-gray-100" />
+        <div className="h-8 w-52 animate-pulse rounded-xl bg-muted-bg" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 animate-pulse rounded-2xl bg-gray-100" />
+            <div key={i} className="h-48 animate-pulse rounded-2xl bg-muted-bg" />
           ))}
         </div>
       </div>
@@ -97,8 +97,8 @@ export default function ColaboradoresPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Colaboradores</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-semibold text-foreground">Colaboradores</h1>
+          <p className="mt-1 text-sm text-muted">
             {colaboradores.length}{' '}
             {colaboradores.length === 1 ? 'colaborador activo' : 'colaboradores activos'}
           </p>
@@ -115,13 +115,13 @@ export default function ColaboradoresPage() {
       {colaboradores.length === 0 ? (
         <Card>
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
-              <svg className="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted-bg transition-colors">
+              <svg className="h-7 w-7 text-muted" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
               </svg>
             </div>
-            <p className="text-sm font-medium text-gray-900">Sin colaboradores aún</p>
-            <p className="mt-1 text-sm text-gray-500">Agrega el primer colaborador para empezar a asignar tareas.</p>
+            <p className="text-sm font-medium text-foreground">Sin colaboradores aún</p>
+            <p className="mt-1 text-sm text-muted">Agrega el primer colaborador para empezar a asignar tareas.</p>
             <button
               onClick={() => setShowModal(true)}
               className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
@@ -152,15 +152,15 @@ export default function ColaboradoresPage() {
                     {(c.nombre || c.email)[0].toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-gray-900">
+                    <p className="truncate text-sm font-semibold text-foreground">
                       {c.nombre || '—'}
                     </p>
-                    <p className="truncate text-xs text-gray-500">{c.email}</p>
+                    <p className="truncate text-xs text-muted">{c.email}</p>
                   </div>
                   {/* Delete icon button */}
                   <button
                     onClick={() => setConfirmDeleteId(c.id)}
-                    className="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                    className="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-lg text-muted hover:bg-red-50 hover:text-red-500 transition-colors"
                     title="Eliminar colaborador"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -170,20 +170,20 @@ export default function ColaboradoresPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-2 rounded-xl bg-gray-50 p-3">
+                <div className="grid grid-cols-3 gap-2 rounded-xl bg-muted-bg transition-colors p-3">
                   <div className="text-center">
-                    <p className="text-lg font-bold text-gray-900">{activas}</p>
-                    <p className="text-xs text-gray-500">Activas</p>
+                    <p className="text-lg font-bold text-foreground">{activas}</p>
+                    <p className="text-xs text-muted">Activas</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-bold text-gray-900">{completadas}</p>
-                    <p className="text-xs text-gray-500">Hechas</p>
+                    <p className="text-lg font-bold text-foreground">{completadas}</p>
+                    <p className="text-xs text-muted">Hechas</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-gray-900">
+                    <p className="text-sm font-bold text-foreground">
                       {formatCurrency(totalGanado)}
                     </p>
-                    <p className="text-xs text-gray-500">Ganado</p>
+                    <p className="text-xs text-muted">Ganado</p>
                   </div>
                 </div>
 
@@ -192,28 +192,28 @@ export default function ColaboradoresPage() {
                   <div className="flex items-center gap-1.5">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <svg key={s} className={`h-3.5 w-3.5 ${s <= Math.round(avgRating) ? 'text-yellow-400' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 24 24">
+                        <svg key={s} className={`h-3.5 w-3.5 ${s <= Math.round(avgRating) ? 'text-yellow-400' : 'text-muted'}`} fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                         </svg>
                       ))}
                     </div>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted">
                       {avgRating.toFixed(1)} ({ratedTasks.length} {ratedTasks.length === 1 ? 'calificación' : 'calificaciones'})
                     </span>
                   </div>
                 )}
 
                 {/* Saldo + fecha */}
-                <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+                <div className="flex items-center justify-between border-t border-border pt-3">
                   <div>
-                    <p className="text-xs text-gray-500">Saldo actual</p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-xs text-muted">Saldo actual</p>
+                    <p className="text-sm font-semibold text-foreground">
                       {formatCurrency(c.saldo_actual || 0)}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500">Miembro desde</p>
-                    <p className="text-xs text-gray-700">{formatDate(c.created_at)}</p>
+                    <p className="text-xs text-muted">Miembro desde</p>
+                    <p className="text-xs text-foreground">{formatDate(c.created_at)}</p>
                   </div>
                 </div>
 
@@ -225,11 +225,11 @@ export default function ColaboradoresPage() {
                     </svg>
                     <div className="min-w-0">
                       <p className="text-xs text-yellow-600 font-medium">Binance ID</p>
-                      <p className="text-xs text-gray-700 truncate">{c.binance_id}</p>
+                      <p className="text-xs text-foreground truncate">{c.binance_id}</p>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-400 text-center">Sin datos de pago</p>
+                  <p className="text-xs text-muted text-center">Sin datos de pago</p>
                 )}
               </Card>
             )
@@ -263,7 +263,7 @@ export default function ColaboradoresPage() {
             required
             placeholder="Mínimo 6 caracteres"
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted">
             El colaborador podrá cambiar su contraseña desde Configuración una vez que inicie sesión.
           </p>
           <div className="flex gap-3 pt-2">
@@ -288,9 +288,9 @@ export default function ColaboradoresPage() {
         title="Eliminar colaborador"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted">
             ¿Estás seguro de que deseas eliminar a{' '}
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-foreground">
               {confirmTarget?.nombre || confirmTarget?.email}
             </span>
             ?
@@ -314,7 +314,7 @@ export default function ColaboradoresPage() {
             <button
               onClick={() => setConfirmDeleteId(null)}
               disabled={deleting}
-              className="flex-1 rounded-xl border border-gray-200 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              className="flex-1 rounded-xl border border-border py-2 text-sm font-medium text-muted hover:bg-muted-bg transition-colors"
             >
               Cancelar
             </button>

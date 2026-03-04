@@ -16,7 +16,7 @@ function GridSkeleton({ count = 6 }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="h-44 animate-pulse rounded-2xl bg-gray-100" />
+        <div key={i} className="h-44 animate-pulse rounded-2xl bg-muted-bg" />
       ))}
     </div>
   )
@@ -27,16 +27,16 @@ function SectionHeader({ title, count, description }) {
   return (
     <div className="flex items-end gap-3 mb-4">
       <div>
-        <h2 className="text-base font-semibold text-gray-900">
+        <h2 className="text-base font-semibold text-foreground">
           {title}
           {count > 0 && (
-            <span className="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gray-100 px-1.5 text-xs font-medium text-gray-600">
+            <span className="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-muted-bg px-1.5 text-xs font-medium text-muted">
               {count}
             </span>
           )}
         </h2>
         {description && (
-          <p className="mt-0.5 text-xs text-gray-500">{description}</p>
+          <p className="mt-0.5 text-xs text-muted">{description}</p>
         )}
       </div>
     </div>
@@ -101,7 +101,7 @@ export default function TasksPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Tareas</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Tareas</h1>
           <Link href="/tasks/new">
             <Button>Nueva Tarea</Button>
           </Link>
@@ -139,7 +139,7 @@ export default function TasksPage() {
   return (
     <div className="space-y-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Tareas</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Tareas</h1>
       </div>
 
       {loading ? (

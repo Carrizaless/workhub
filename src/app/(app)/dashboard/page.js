@@ -10,12 +10,12 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="h-8 w-48 animate-pulse rounded-xl bg-gray-100" />
+        <div className="h-8 w-48 animate-pulse rounded-xl bg-muted-bg" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-28 animate-pulse rounded-2xl bg-gray-100"
+              className="h-28 animate-pulse rounded-2xl bg-muted-bg"
             />
           ))}
         </div>
@@ -27,7 +27,7 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
         <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3">
           <p className="text-sm font-medium text-yellow-800">
             No se pudo cargar la sesión del usuario.

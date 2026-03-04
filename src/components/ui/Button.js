@@ -1,11 +1,11 @@
 import clsx from 'clsx'
 
 const variants = {
-  primary: 'bg-gray-900 text-white hover:bg-gray-800',
-  secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+  primary: 'bg-accent text-white hover:opacity-90',
+  secondary: 'bg-muted-bg text-foreground hover:opacity-80',
   danger: 'bg-red-600 text-white hover:bg-red-700',
   success: 'bg-green-600 text-white hover:bg-green-700',
-  ghost: 'text-gray-600 hover:bg-gray-100',
+  ghost: 'text-muted hover:bg-muted-bg',
 }
 
 const sizes = {

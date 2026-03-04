@@ -4,13 +4,13 @@ export default function Input({ label, error, className = '', ...props }) {
   return (
     <div className="space-y-1.5">
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-foreground">
           {label}
         </label>
       )}
       <input
         className={clsx(
-          'w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20',
+          'w-full rounded-xl border border-border bg-input-bg px-4 py-3 text-sm text-foreground placeholder-muted outline-none transition-all focus:border-accent focus:bg-card focus:ring-2 focus:ring-accent/20',
           error && 'border-red-300 focus:border-red-500 focus:ring-red-500/20',
           className
         )}

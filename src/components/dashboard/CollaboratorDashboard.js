@@ -58,7 +58,7 @@ export default function CollaboratorDashboard() {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-28 animate-pulse rounded-2xl bg-gray-100" />
+          <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted-bg" />
         ))}
       </div>
     )
@@ -66,7 +66,7 @@ export default function CollaboratorDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
@@ -96,16 +96,16 @@ export default function CollaboratorDashboard() {
 
       {/* Personal performance card */}
       {personalStats && (personalStats.completadas > 0 || personalStats.totalGanado > 0) && (
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-6">
-          <h2 className="text-sm font-medium text-gray-900 mb-4">Mi Desempeño</h2>
+        <div className="rounded-2xl border border-border bg-card shadow-sm p-6 transition-colors">
+          <h2 className="text-sm font-medium text-foreground mb-4">Mi Desempeño</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-gray-900">{personalStats.completadas}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Completadas</p>
+              <p className="text-2xl font-bold text-foreground">{personalStats.completadas}</p>
+              <p className="text-xs text-muted mt-0.5">Completadas</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-gray-900">{formatCurrency(personalStats.totalGanado)}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Total ganado</p>
+              <p className="text-lg font-bold text-foreground">{formatCurrency(personalStats.totalGanado)}</p>
+              <p className="text-xs text-muted mt-0.5">Total ganado</p>
             </div>
             <div>
               {personalStats.avgRating !== null ? (
@@ -117,12 +117,12 @@ export default function CollaboratorDashboard() {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500">{personalStats.avgRating.toFixed(1)} / 5</p>
+                  <p className="text-xs text-muted">{personalStats.avgRating.toFixed(1)} / 5</p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm text-gray-400">—</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Sin calificar</p>
+                  <p className="text-sm text-muted">—</p>
+                  <p className="text-xs text-muted mt-0.5">Sin calificar</p>
                 </>
               )}
             </div>
@@ -131,24 +131,24 @@ export default function CollaboratorDashboard() {
       )}
 
       {myTasks.length > 0 && (
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="border-b border-gray-100 px-6 py-4">
-            <h2 className="text-sm font-medium text-gray-900">Mis Tareas Activas</h2>
+        <div className="rounded-2xl border border-border bg-card shadow-sm transition-colors">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-sm font-medium text-foreground">Mis Tareas Activas</h2>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-border">
             {myTasks.map((task) => (
               <Link
                 key={task.id}
                 href={`/tasks/${task.id}`}
-                className="flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between px-6 py-3 hover:bg-muted-bg transition-colors"
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{task.titulo}</p>
+                  <p className="text-sm font-medium text-foreground">{task.titulo}</p>
                   <Badge className={STATE_COLORS[task.estado]}>
                     {STATE_LABELS[task.estado]}
                   </Badge>
                 </div>
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-muted">
                   {formatCurrency(task.precio)}
                 </span>
               </Link>
@@ -158,23 +158,23 @@ export default function CollaboratorDashboard() {
       )}
 
       {availableTasks.length > 0 && (
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-900">Tareas Disponibles</h2>
+        <div className="rounded-2xl border border-border bg-card shadow-sm transition-colors">
+          <div className="border-b border-border px-6 py-4 flex items-center justify-between">
+            <h2 className="text-sm font-medium text-foreground">Tareas Disponibles</h2>
             <Link href="/tasks" className="text-xs text-blue-600 hover:text-blue-700">
               Ver todas
             </Link>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-border">
             {availableTasks.map((task) => (
               <Link
                 key={task.id}
                 href={`/tasks/${task.id}`}
-                className="flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between px-6 py-3 hover:bg-muted-bg transition-colors"
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{task.titulo}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm font-medium text-foreground">{task.titulo}</p>
+                  <p className="text-xs text-muted">
                     {task.descripcion?.slice(0, 60)}
                     {task.descripcion?.length > 60 ? '...' : ''}
                   </p>

@@ -83,8 +83,8 @@ export default function TaskDetailPage() {
   if (loading || userLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-8 w-64 animate-pulse rounded-xl bg-gray-100" />
-        <div className="h-64 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-8 w-64 animate-pulse rounded-xl bg-muted-bg" />
+        <div className="h-64 animate-pulse rounded-2xl bg-muted-bg" />
       </div>
     )
   }
@@ -92,7 +92,7 @@ export default function TaskDetailPage() {
   if (!task) {
     return (
       <div className="text-center py-16">
-        <p className="text-gray-500">Tarea no encontrada</p>
+        <p className="text-muted">Tarea no encontrada</p>
       </div>
     )
   }
@@ -112,11 +112,11 @@ export default function TaskDetailPage() {
               isAdmin={isAdmin}
               isAssignedToMe={isAssignedToMe}
             />
-            <span className="text-lg font-semibold text-gray-900">
+            <span className="text-lg font-semibold text-foreground">
               {formatCurrency(task.precio)}
             </span>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="text-2xl font-semibold text-foreground">
             {task.titulo}
           </h1>
         </div>
@@ -159,7 +159,7 @@ export default function TaskDetailPage() {
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-white"
+              className="rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-muted hover:bg-card"
             >
               Cancelar
             </button>
@@ -172,17 +172,17 @@ export default function TaskDetailPage() {
         <div className="space-y-6 lg:col-span-2">
           {/* Description */}
           <Card>
-            <h2 className="text-sm font-medium text-gray-900 mb-3">
+            <h2 className="text-sm font-medium text-foreground mb-3">
               Descripción
             </h2>
-            <p className="text-sm text-gray-600 whitespace-pre-wrap">
+            <p className="text-sm text-muted whitespace-pre-wrap">
               {task.descripcion || 'Sin descripción'}
             </p>
           </Card>
 
           {/* Files */}
           <Card>
-            <h2 className="text-sm font-medium text-gray-900 mb-3">
+            <h2 className="text-sm font-medium text-foreground mb-3">
               Archivos Adjuntos
             </h2>
             <FileList
@@ -205,7 +205,7 @@ export default function TaskDetailPage() {
           {/* Chat (only if task is assigned) */}
           {task.asignado_a && (
             <Card>
-              <h2 className="text-sm font-medium text-gray-900 mb-3">
+              <h2 className="text-sm font-medium text-foreground mb-3">
                 Chat de la Tarea
               </h2>
               <ChatPanel taskId={task.id} />
@@ -217,19 +217,19 @@ export default function TaskDetailPage() {
         <div className="space-y-6">
           {/* History / Audit log */}
           <Card>
-            <h2 className="text-sm font-medium text-gray-900 mb-4">
+            <h2 className="text-sm font-medium text-foreground mb-4">
               Historial
             </h2>
             <TaskHistory history={history} />
           </Card>
 
           <Card>
-            <h2 className="text-sm font-medium text-gray-900 mb-4">
+            <h2 className="text-sm font-medium text-foreground mb-4">
               Detalles
             </h2>
             <dl className="space-y-3">
               <div>
-                <dt className="text-xs text-gray-500">Estado</dt>
+                <dt className="text-xs text-muted">Estado</dt>
                 <dd className="mt-0.5">
                   <TaskStatusBadge
                     estado={task.estado}
@@ -239,42 +239,42 @@ export default function TaskDetailPage() {
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500">Precio</dt>
-                <dd className="text-sm font-medium text-gray-900">
+                <dt className="text-xs text-muted">Precio</dt>
+                <dd className="text-sm font-medium text-foreground">
                   {formatCurrency(task.precio)}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500">Asignado a</dt>
-                <dd className="text-sm text-gray-900">
+                <dt className="text-xs text-muted">Asignado a</dt>
+                <dd className="text-sm text-foreground">
                   {task.asignado
                     ? task.asignado.nombre || task.asignado.email
                     : 'Sin asignar'}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500">Fecha Límite</dt>
-                <dd className="text-sm text-gray-900">
+                <dt className="text-xs text-muted">Fecha Límite</dt>
+                <dd className="text-sm text-foreground">
                   {task.fecha_limite
                     ? formatDate(task.fecha_limite)
                     : 'Sin fecha límite'}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500">Creada</dt>
-                <dd className="text-sm text-gray-900">
+                <dt className="text-xs text-muted">Creada</dt>
+                <dd className="text-sm text-foreground">
                   {formatDateTime(task.created_at)}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-500">Última actualización</dt>
-                <dd className="text-sm text-gray-900">
+                <dt className="text-xs text-muted">Última actualización</dt>
+                <dd className="text-sm text-foreground">
                   {formatDateTime(task.updated_at)}
                 </dd>
               </div>
               {task.estado === 'aprobada' && (
                 <div>
-                  <dt className="text-xs text-gray-500 mb-1.5">
+                  <dt className="text-xs text-muted mb-1.5">
                     {isAdmin ? 'Calificación' : 'Tu calificación'}
                   </dt>
                   <dd>
@@ -284,7 +284,7 @@ export default function TaskDetailPage() {
                       readOnly={!isAdmin}
                     />
                     {!task.calificacion && isAdmin && (
-                      <p className="mt-1 text-xs text-gray-400">Haz clic en las estrellas para calificar</p>
+                      <p className="mt-1 text-xs text-muted">Haz clic en las estrellas para calificar</p>
                     )}
                   </dd>
                 </div>

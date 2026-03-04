@@ -13,7 +13,7 @@ export default function TaskStatusBadge({
 }) {
   const label = getStateLabel(estado, { isAdmin, isAssignedToMe })
   return (
-    <Badge className={STATE_COLORS[estado] || 'bg-gray-100 text-gray-700'}>
+    <Badge className={STATE_COLORS[estado] || 'bg-muted-bg text-foreground'}>
       {label}
     </Badge>
   )

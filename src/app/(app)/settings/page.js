@@ -114,9 +114,9 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-2xl space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded-xl bg-gray-100" />
-        <div className="h-48 animate-pulse rounded-2xl bg-gray-100" />
-        <div className="h-48 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-8 w-48 animate-pulse rounded-xl bg-muted-bg" />
+        <div className="h-48 animate-pulse rounded-2xl bg-muted-bg" />
+        <div className="h-48 animate-pulse rounded-2xl bg-muted-bg" />
       </div>
     )
   }
@@ -127,11 +127,11 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Configuración</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Configuración</h1>
 
       {/* Avatar */}
       <Card>
-        <h2 className="text-sm font-medium text-gray-900 mb-4">Foto de Perfil</h2>
+        <h2 className="text-sm font-medium text-foreground mb-4">Foto de Perfil</h2>
         <div className="flex items-center gap-5">
           <div className="relative flex-shrink-0">
             {avatarSrc ? (
@@ -146,7 +146,7 @@ export default function SettingsPage() {
               </div>
             )}
             {uploadingAvatar && (
-              <div className="absolute inset-0 rounded-2xl bg-white/70 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-2xl bg-card/70 flex items-center justify-center">
                 <svg className="h-5 w-5 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -166,21 +166,21 @@ export default function SettingsPage() {
             />
             <label
               htmlFor="avatar-upload"
-              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted-bg transition-colors"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
               </svg>
               {uploadingAvatar ? 'Subiendo...' : 'Cambiar foto'}
             </label>
-            <p className="text-xs text-gray-400">PNG, JPG, WebP · máx 2MB</p>
+            <p className="text-xs text-muted">PNG, JPG, WebP · máx 2MB</p>
           </div>
         </div>
       </Card>
 
       {/* Profile info */}
       <Card>
-        <h2 className="text-sm font-medium text-gray-900 mb-4">Perfil</h2>
+        <h2 className="text-sm font-medium text-foreground mb-4">Perfil</h2>
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           <Input
             label="Nombre"
@@ -189,16 +189,16 @@ export default function SettingsPage() {
             placeholder="Tu nombre completo"
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Correo electrónico
             </label>
-            <p className="text-sm text-gray-500">{profile?.email}</p>
+            <p className="text-sm text-muted">{profile?.email}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Rol
             </label>
-            <p className="text-sm text-gray-500 capitalize">{profile?.role}</p>
+            <p className="text-sm text-muted capitalize">{profile?.role}</p>
           </div>
           <Button type="submit" disabled={saving}>
             {saving ? 'Guardando...' : 'Guardar Cambios'}
@@ -208,7 +208,7 @@ export default function SettingsPage() {
 
       {/* Password */}
       <Card>
-        <h2 className="text-sm font-medium text-gray-900 mb-4">
+        <h2 className="text-sm font-medium text-foreground mb-4">
           Cambiar Contraseña
         </h2>
         <form onSubmit={handlePasswordSubmit} className="space-y-4">

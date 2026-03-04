@@ -39,7 +39,7 @@ export default function LoginForm() {
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-700 mb-1.5"
+          className="block text-sm font-medium text-foreground mb-1.5"
         >
           Correo electronico
         </label>
@@ -49,7 +49,7 @@ export default function LoginForm() {
           type="email"
           required
           autoComplete="email"
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+          className="w-full rounded-xl border border-border bg-input-bg px-4 py-3 text-sm text-foreground placeholder-muted outline-none transition-all focus:border-accent focus:bg-card focus:ring-2 focus:ring-accent/20"
           placeholder="tu@email.com"
         />
       </div>
@@ -57,7 +57,7 @@ export default function LoginForm() {
       <div>
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-gray-700 mb-1.5"
+          className="block text-sm font-medium text-foreground mb-1.5"
         >
           Contrasena
         </label>
@@ -67,7 +67,7 @@ export default function LoginForm() {
           type="password"
           required
           autoComplete="current-password"
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+          className="w-full rounded-xl border border-border bg-input-bg px-4 py-3 text-sm text-foreground placeholder-muted outline-none transition-all focus:border-accent focus:bg-card focus:ring-2 focus:ring-accent/20"
           placeholder="Tu contrasena"
         />
       </div>
@@ -75,7 +75,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? 'Ingresando...' : 'Ingresar'}
       </button>
