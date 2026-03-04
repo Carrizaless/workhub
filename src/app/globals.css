@@ -8,9 +8,46 @@
   --border: #e5e7eb;
   --accent: #2563eb;
   --accent-light: #dbeafe;
+  --accent-hover: #1d4ed8;
+  --accent-subtle: #eff6ff;
   --muted: #6b7280;
   --muted-bg: #f3f4f6;
   --input-bg: #f9fafb;
+
+  --success: #059669;
+  --success-light: #d1fae5;
+  --success-hover: #047857;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --danger-hover: #b91c1c;
+  --info: #7c3aed;
+  --info-light: #ede9fe;
+
+  --stat-blue: #3b82f6;
+  --stat-blue-light: #dbeafe;
+  --stat-amber: #f59e0b;
+  --stat-amber-light: #fef3c7;
+  --stat-emerald: #10b981;
+  --stat-emerald-light: #d1fae5;
+  --stat-violet: #8b5cf6;
+  --stat-violet-light: #ede9fe;
+
+  --status-pending-bg: #f3f4f6;
+  --status-pending-text: #4b5563;
+  --status-accepted-bg: #dbeafe;
+  --status-accepted-text: #1d4ed8;
+  --status-review-bg: #fef3c7;
+  --status-review-text: #92400e;
+  --status-correction-bg: #fee2e2;
+  --status-correction-text: #991b1b;
+  --status-approved-bg: #d1fae5;
+  --status-approved-text: #065f46;
+
+  --sidebar-active-bg: #eff6ff;
+  --sidebar-active-text: #2563eb;
+  --sidebar-active-border: #2563eb;
 }
 
 .dark {
@@ -21,9 +58,46 @@
   --border: #262626;
   --accent: #3b82f6;
   --accent-light: #172554;
+  --accent-hover: #60a5fa;
+  --accent-subtle: #172554;
   --muted: #71717a;
   --muted-bg: #1a1a1a;
   --input-bg: #141414;
+
+  --success: #34d399;
+  --success-light: #064e3b;
+  --success-hover: #6ee7b7;
+  --warning: #fbbf24;
+  --warning-light: #451a03;
+  --danger: #f87171;
+  --danger-light: #450a0a;
+  --danger-hover: #fca5a5;
+  --info: #a78bfa;
+  --info-light: #2e1065;
+
+  --stat-blue: #60a5fa;
+  --stat-blue-light: #172554;
+  --stat-amber: #fbbf24;
+  --stat-amber-light: #451a03;
+  --stat-emerald: #34d399;
+  --stat-emerald-light: #064e3b;
+  --stat-violet: #a78bfa;
+  --stat-violet-light: #2e1065;
+
+  --status-pending-bg: #1a1a1a;
+  --status-pending-text: #a1a1aa;
+  --status-accepted-bg: #172554;
+  --status-accepted-text: #93c5fd;
+  --status-review-bg: #451a03;
+  --status-review-text: #fcd34d;
+  --status-correction-bg: #450a0a;
+  --status-correction-text: #fca5a5;
+  --status-approved-bg: #064e3b;
+  --status-approved-text: #6ee7b7;
+
+  --sidebar-active-bg: #172554;
+  --sidebar-active-text: #60a5fa;
+  --sidebar-active-border: #3b82f6;
 }
 
 @theme inline {
@@ -34,9 +108,47 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
   --color-muted: var(--muted);
   --color-muted-bg: var(--muted-bg);
   --color-input-bg: var(--input-bg);
+
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-success-hover: var(--success-hover);
+  --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
+  --color-danger: var(--danger);
+  --color-danger-light: var(--danger-light);
+  --color-danger-hover: var(--danger-hover);
+  --color-info: var(--info);
+  --color-info-light: var(--info-light);
+
+  --color-stat-blue: var(--stat-blue);
+  --color-stat-blue-light: var(--stat-blue-light);
+  --color-stat-amber: var(--stat-amber);
+  --color-stat-amber-light: var(--stat-amber-light);
+  --color-stat-emerald: var(--stat-emerald);
+  --color-stat-emerald-light: var(--stat-emerald-light);
+  --color-stat-violet: var(--stat-violet);
+  --color-stat-violet-light: var(--stat-violet-light);
+
+  --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-pending-text: var(--status-pending-text);
+  --color-status-accepted-bg: var(--status-accepted-bg);
+  --color-status-accepted-text: var(--status-accepted-text);
+  --color-status-review-bg: var(--status-review-bg);
+  --color-status-review-text: var(--status-review-text);
+  --color-status-correction-bg: var(--status-correction-bg);
+  --color-status-correction-text: var(--status-correction-text);
+  --color-status-approved-bg: var(--status-approved-bg);
+  --color-status-approved-text: var(--status-approved-text);
+
+  --color-sidebar-active-bg: var(--sidebar-active-bg);
+  --color-sidebar-active-text: var(--sidebar-active-text);
+  --color-sidebar-active-border: var(--sidebar-active-border);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

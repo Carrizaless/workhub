@@ -1,11 +1,11 @@
 import clsx from 'clsx'
 
 const variants = {
-  primary: 'bg-accent text-white hover:opacity-90',
-  secondary: 'bg-muted-bg text-foreground hover:opacity-80',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
-  success: 'bg-green-600 text-white hover:bg-green-700',
-  ghost: 'text-muted hover:bg-muted-bg',
+  primary: 'bg-accent text-white hover:bg-accent-hover shadow-sm shadow-accent/25',
+  secondary: 'bg-muted-bg text-foreground hover:bg-border',
+  danger: 'bg-danger text-white hover:bg-danger-hover shadow-sm shadow-danger/25',
+  success: 'bg-success text-white hover:bg-success-hover shadow-sm shadow-success/25',
+  ghost: 'text-muted hover:bg-muted-bg hover:text-foreground',
 }
 
 const sizes = {
@@ -26,7 +26,7 @@ export default function Button({
     <button
       disabled={disabled}
       className={clsx(
-        'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
         variants[variant],
         sizes[size],
         className

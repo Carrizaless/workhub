@@ -41,7 +41,8 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-30 hidden h-screen w-64 flex-col border-r border-border bg-sidebar lg:flex transition-colors">
       <div className="flex h-16 items-center px-6 border-b border-border">
-        <Link href="/dashboard" className="text-xl font-semibold text-foreground">
+        <Link href="/dashboard" className="flex items-center gap-2.5 text-xl font-bold text-foreground">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white text-sm font-bold shadow-sm shadow-accent/25">W</span>
           WorkHub
         </Link>
       </div>
@@ -57,12 +58,15 @@ export default function Sidebar() {
               key={link.href}
               href={link.href}
               className={clsx(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 relative',
                 isActive
-                  ? 'bg-muted-bg text-foreground'
+                  ? 'bg-sidebar-active-bg text-sidebar-active-text'
                   : 'text-muted hover:bg-muted-bg/60 hover:text-foreground'
               )}
             >
+              {isActive && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-sidebar-active-border" />
+              )}
               <link.icon className="h-5 w-5 flex-shrink-0" />
               <span className="flex-1">{link.label}</span>
               {link.href === '/chat' && dmCount > 0 && (
@@ -86,7 +90,7 @@ export default function Sidebar() {
               className="h-9 w-9 rounded-full object-cover flex-shrink-0"
             />
           ) : (
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted-bg text-sm font-medium text-muted">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent to-info text-sm font-medium text-white">
               {initials}
             </div>
           )}

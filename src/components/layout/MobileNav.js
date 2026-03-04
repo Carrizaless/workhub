@@ -43,7 +43,10 @@ export default function MobileNav({ open, onClose }) {
       <div className="fixed inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed left-0 top-0 h-full w-72 bg-sidebar shadow-xl flex flex-col transition-colors">
         <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-          <span className="text-xl font-semibold text-foreground">WorkHub</span>
+          <span className="flex items-center gap-2.5 text-xl font-bold text-foreground">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white text-sm font-bold shadow-sm shadow-accent/25">W</span>
+            WorkHub
+          </span>
           <button onClick={onClose} className="rounded-lg p-1.5 text-muted hover:bg-muted-bg">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -63,9 +66,9 @@ export default function MobileNav({ open, onClose }) {
                 href={link.href}
                 onClick={onClose}
                 className={clsx(
-                  'flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                  'flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-muted-bg text-foreground'
+                    ? 'bg-sidebar-active-bg text-sidebar-active-text'
                     : 'text-muted hover:bg-muted-bg/60 hover:text-foreground'
                 )}
               >
@@ -91,7 +94,7 @@ export default function MobileNav({ open, onClose }) {
                 className="h-9 w-9 rounded-full object-cover flex-shrink-0"
               />
             ) : (
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted-bg text-sm font-medium text-muted">
+              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent to-info text-sm font-medium text-white">
                 {initials}
               </div>
             )}

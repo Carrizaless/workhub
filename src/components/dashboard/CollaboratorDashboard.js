@@ -69,9 +69,9 @@ export default function CollaboratorDashboard() {
       <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-          <p className="text-sm font-medium text-red-800">Error: {error}</p>
-          <p className="text-xs text-red-600 mt-1">Intenta recargar la página o cerrar sesión y volver a ingresar.</p>
+        <div className="rounded-xl border border-danger-light bg-danger-light px-4 py-3">
+          <p className="text-sm font-medium text-danger">Error: {error}</p>
+          <p className="text-xs text-danger/80 mt-1">Intenta recargar la pagina o cerrar sesion y volver a ingresar.</p>
         </div>
       )}
 
@@ -81,16 +81,19 @@ export default function CollaboratorDashboard() {
           title="Tareas Activas"
           value={stats.activas}
           subtitle="En progreso"
+          color="blue"
         />
         <StatsCard
           title="Disponibles"
           value={stats.disponibles}
           subtitle="Para aceptar"
+          color="amber"
         />
         <StatsCard
           title="Mi Saldo"
           value={formatCurrency(stats.saldo)}
           subtitle="Disponible"
+          color="emerald"
         />
       </div>
 
@@ -100,11 +103,11 @@ export default function CollaboratorDashboard() {
           <h2 className="text-sm font-medium text-foreground mb-4">Mi Desempeño</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-foreground">{personalStats.completadas}</p>
+              <p className="text-2xl font-bold text-accent">{personalStats.completadas}</p>
               <p className="text-xs text-muted mt-0.5">Completadas</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-foreground">{formatCurrency(personalStats.totalGanado)}</p>
+              <p className="text-lg font-bold text-success">{formatCurrency(personalStats.totalGanado)}</p>
               <p className="text-xs text-muted mt-0.5">Total ganado</p>
             </div>
             <div>
@@ -112,7 +115,7 @@ export default function CollaboratorDashboard() {
                 <>
                   <div className="flex items-center justify-center gap-0.5 mb-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <svg key={s} className={`h-4 w-4 ${s <= Math.round(personalStats.avgRating) ? 'text-yellow-400' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 24 24">
+                      <svg key={s} className={`h-4 w-4 ${s <= Math.round(personalStats.avgRating) ? 'text-stat-amber' : 'text-muted-bg'}`} fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
                     ))}
@@ -161,7 +164,7 @@ export default function CollaboratorDashboard() {
         <div className="rounded-2xl border border-border bg-card shadow-sm transition-colors">
           <div className="border-b border-border px-6 py-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-foreground">Tareas Disponibles</h2>
-            <Link href="/tasks" className="text-xs text-blue-600 hover:text-blue-700">
+            <Link href="/tasks" className="text-xs text-accent hover:text-accent-hover">
               Ver todas
             </Link>
           </div>
@@ -179,7 +182,7 @@ export default function CollaboratorDashboard() {
                     {task.descripcion?.length > 60 ? '...' : ''}
                   </p>
                 </div>
-                <span className="text-sm font-semibold text-green-600">
+                <span className="text-sm font-semibold text-success">
                   {formatCurrency(task.precio)}
                 </span>
               </Link>

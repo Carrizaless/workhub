@@ -4,7 +4,7 @@ export default function Skeleton({ className = '' }) {
   return (
     <div
       className={clsx(
-        'animate-pulse rounded-xl bg-gray-100',
+        'animate-pulse rounded-xl bg-muted-bg',
         className
       )}
     />

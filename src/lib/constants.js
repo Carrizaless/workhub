@@ -43,11 +43,11 @@ export const STATE_TRANSITIONS = {
 }
 
 export const STATE_COLORS = {
-  pendiente: 'bg-gray-100 text-gray-700',
-  aceptada: 'bg-blue-100 text-blue-700',
-  en_revision: 'bg-yellow-100 text-yellow-700',
-  en_correccion: 'bg-red-100 text-red-700',
-  aprobada: 'bg-green-100 text-green-700',
+  pendiente: 'bg-status-pending-bg text-status-pending-text',
+  aceptada: 'bg-status-accepted-bg text-status-accepted-text',
+  en_revision: 'bg-status-review-bg text-status-review-text',
+  en_correccion: 'bg-status-correction-bg text-status-correction-text',
+  aprobada: 'bg-status-approved-bg text-status-approved-text',
 }
 
 // Generic labels (fallback)

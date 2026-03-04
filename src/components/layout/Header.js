@@ -24,7 +24,10 @@ export default function Header() {
           </svg>
         </button>
 
-        <div className="lg:hidden text-lg font-semibold text-foreground">WorkHub</div>
+        <div className="lg:hidden flex items-center gap-2 text-lg font-bold text-foreground">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent text-white text-xs font-bold">W</span>
+          WorkHub
+        </div>
 
         <div className="flex items-center gap-2">
           {/* Dark mode toggle */}
@@ -62,7 +65,7 @@ export default function Header() {
                 className="h-8 w-8 rounded-full object-cover"
               />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted-bg text-xs font-medium text-muted">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-accent to-info text-xs font-medium text-white">
                 {profile?.nombre?.[0]?.toUpperCase() || profile?.email?.[0]?.toUpperCase() || '?'}
               </div>
             )}

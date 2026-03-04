@@ -75,7 +75,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-medium text-white shadow-sm shadow-accent/25 transition-all duration-150 hover:bg-accent-hover active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? 'Ingresando...' : 'Ingresar'}
       </button>

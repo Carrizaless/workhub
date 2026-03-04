@@ -14,14 +14,14 @@ export default function TaskCard({ task, isAdmin = false, isAssignedToMe = false
 
   return (
     <Link href={`/tasks/${task.id}`}>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col">
+      <Card hover className="cursor-pointer h-full flex flex-col">
         <div className="flex items-start justify-between mb-3">
           <TaskStatusBadge
             estado={task.estado}
             isAdmin={isAdmin}
             isAssignedToMe={isAssignedToMe}
           />
-          <span className="text-sm font-semibold text-foreground">
+          <span className="text-sm font-semibold text-success">
             {formatCurrency(task.precio)}
           </span>
         </div>
@@ -57,7 +57,7 @@ export default function TaskCard({ task, isAdmin = false, isAssignedToMe = false
 
           {/* Show assignee name on "others" section */}
           {assigneeName && !isAssignedToMe && !isAdmin ? (
-            <span className="text-xs text-indigo-500 font-medium truncate max-w-[110px]">
+            <span className="text-xs text-info font-medium truncate max-w-[110px]">
               {assigneeName}
             </span>
           ) : (

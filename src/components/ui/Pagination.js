@@ -30,9 +30,9 @@ export default function Pagination({ page, totalPages, onPageChange }) {
 
   const btnBase =
     'flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors'
-  const btnActive = 'bg-gray-900 text-white'
-  const btnInactive = 'text-gray-600 hover:bg-gray-100'
-  const btnArrow = 'text-gray-400 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed'
+  const btnActive = 'bg-accent text-white'
+  const btnInactive = 'text-muted hover:bg-muted-bg'
+  const btnArrow = 'text-muted hover:bg-muted-bg disabled:opacity-30 disabled:cursor-not-allowed'
 
   return (
     <div className="flex items-center justify-center gap-1 pt-2">
@@ -51,7 +51,7 @@ export default function Pagination({ page, totalPages, onPageChange }) {
       {/* Page numbers */}
       {pages.map((p, i) =>
         p === '...' ? (
-          <span key={`ellipsis-${i}`} className="flex h-8 w-8 items-center justify-center text-xs text-gray-400">
+          <span key={`ellipsis-${i}`} className="flex h-8 w-8 items-center justify-center text-xs text-muted">
             …
           </span>
         ) : (
