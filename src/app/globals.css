@@ -185,6 +185,17 @@ body {
   background: #444444;
 }
 
+/* Focus-visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: none;
+}
+
 /* Blog HTML content renderer */
 .blog-html h1 { font-size: 1.375rem; font-weight: 700; color: var(--foreground); margin: 1.25rem 0 0.5rem; }
 .blog-html h2 { font-size: 1.125rem; font-weight: 600; color: var(--foreground); margin: 1.25rem 0 0.5rem; }

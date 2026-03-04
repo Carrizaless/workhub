@@ -34,8 +34,11 @@ export async function middleware(request) {
 
     const { data } = await supabase.auth.getUser()
     user = data?.user ?? null
-  } catch {
-    // Any failure (missing env, network, etc.) — treat as unauthenticated
+  } catch (e) {
+    // Log auth failures for debugging (except missing env vars which are expected in some envs)
+    if (e?.message !== 'Missing env vars') {
+      console.error('[middleware] Auth error:', e?.message || e)
+    }
   }
 
   // Redirect unauthenticated users to login

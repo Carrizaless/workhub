@@ -109,14 +109,13 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
       if (files.length > 0) {
         setUploading(true)
         try {
-          const uploaded = []
-          for (const file of files) {
-            const folder = taskId ? `chat/${taskId}` : `chat/dm/${[userId, otherUserId].sort().join('-')}`
-            const filePath = `${folder}/${Date.now()}-${file.name}`
+          const folder = taskId ? `chat/${taskId}` : `chat/dm/${[userId, otherUserId].sort().join('-')}`
+          const uploadPromises = files.map(async (file, i) => {
+            const filePath = `${folder}/${Date.now()}-${i}-${file.name}`
             const urlResult = await createUploadUrl('task-attachments', filePath)
             if (urlResult.error || !urlResult.signedUrl) {
               console.error(`Upload URL error for ${file.name}:`, urlResult.error)
-              continue
+              return null
             }
             const uploadRes = await fetch(urlResult.signedUrl, {
               method: 'PUT',
@@ -124,11 +123,13 @@ export function useMessages({ taskId = null, isSoporte = false, otherUserId = nu
               body: file,
             })
             if (uploadRes.ok) {
-              uploaded.push({ path: filePath, name: file.name, type: file.type })
-            } else {
-              console.error(`Upload failed for ${file.name}:`, uploadRes.status)
+              return { path: filePath, name: file.name, type: file.type }
             }
-          }
+            console.error(`Upload failed for ${file.name}:`, uploadRes.status)
+            return null
+          })
+          const results = await Promise.all(uploadPromises)
+          const uploaded = results.filter(Boolean)
           if (uploaded.length > 0) {
             archivos = uploaded
           }

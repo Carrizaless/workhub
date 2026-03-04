@@ -12,6 +12,7 @@ import FileList from '@/components/files/FileList'
 import ChatPanel from '@/components/chat/ChatPanel'
 import TaskHistory from '@/components/tasks/TaskHistory'
 import TaskRating from '@/components/tasks/TaskRating'
+import Link from 'next/link'
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils'
 import { getTask, deleteTask, rateTask } from '@/actions/tasks'
 import toast from 'react-hot-toast'
@@ -103,6 +104,15 @@ export default function TaskDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      {/* Breadcrumb */}
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm">
+        <Link href="/tasks" className="text-muted hover:text-accent transition-colors">Tareas</Link>
+        <svg className="h-3.5 w-3.5 text-muted" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+        <span className="text-foreground font-medium truncate max-w-[200px]">{task.titulo}</span>
+      </nav>
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
@@ -131,7 +141,7 @@ export default function TaskDetailPage() {
           {isAdmin && (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-danger/30 px-3 py-2 text-xs font-medium text-danger hover:bg-danger-light transition-colors"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -144,22 +154,22 @@ export default function TaskDetailPage() {
 
       {/* Delete confirmation banner */}
       {confirmDelete && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex items-center justify-between gap-4">
+        <div className="rounded-2xl border border-danger/30 bg-danger-light p-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-red-800">¿Eliminar esta tarea?</p>
-            <p className="text-xs text-red-600 mt-0.5">Esta acción no se puede deshacer. Se eliminará todo el historial y archivos.</p>
+            <p className="text-sm font-medium text-danger">¿Eliminar esta tarea?</p>
+            <p className="text-xs text-danger/80 mt-0.5">Esta acción no se puede deshacer. Se eliminará todo el historial y archivos.</p>
           </div>
           <div className="flex gap-2 flex-shrink-0">
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="rounded-xl bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+              className="rounded-xl bg-danger px-3 py-1.5 text-xs font-medium text-white hover:bg-danger-hover disabled:opacity-60 transition-colors"
             >
               {deleting ? 'Eliminando...' : 'Sí, eliminar'}
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-muted hover:bg-card"
+              className="rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-muted hover:bg-card transition-colors"
             >
               Cancelar
             </button>

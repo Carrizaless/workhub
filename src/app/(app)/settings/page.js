@@ -1,6 +1,7 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useCallback } from 'react'
+import Image from 'next/image'
 import { useUser } from '@/contexts/UserContext'
 import { updateProfile, changePassword, updateAvatar } from '@/actions/users'
 import Card from '@/components/ui/Card'
@@ -11,10 +12,26 @@ import toast from 'react-hot-toast'
 export default function SettingsPage() {
   const { user, profile, loading } = useUser()
   const [saving, setSaving] = useState(false)
+  const [profileSaved, setProfileSaved] = useState(false)
   const [changingPassword, setChangingPassword] = useState(false)
+  const [passwordValue, setPasswordValue] = useState('')
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const fileInputRef = useRef(null)
+
+  const passwordStrength = useCallback((pw) => {
+    if (!pw) return { level: 0, label: '', color: '' }
+    let score = 0
+    if (pw.length >= 8) score++
+    if (/[A-Z]/.test(pw)) score++
+    if (/[0-9]/.test(pw)) score++
+    if (/[^A-Za-z0-9]/.test(pw)) score++
+    if (pw.length >= 12) score++
+    if (score <= 1) return { level: 1, label: 'Débil', color: 'bg-danger' }
+    if (score <= 2) return { level: 2, label: 'Regular', color: 'bg-warning' }
+    if (score <= 3) return { level: 3, label: 'Buena', color: 'bg-stat-amber' }
+    return { level: 4, label: 'Fuerte', color: 'bg-success' }
+  }, [])
 
   async function handleProfileSubmit(e) {
     e.preventDefault()
@@ -25,6 +42,8 @@ export default function SettingsPage() {
       toast.error(result.error)
     } else {
       toast.success('Perfil actualizado')
+      setProfileSaved(true)
+      setTimeout(() => setProfileSaved(false), 3000)
     }
     setSaving(false)
   }
@@ -135,19 +154,22 @@ export default function SettingsPage() {
         <div className="flex items-center gap-5">
           <div className="relative flex-shrink-0">
             {avatarSrc ? (
-              <img
+              <Image
                 src={avatarSrc}
                 alt="Avatar"
+                width={80}
+                height={80}
                 className="h-20 w-20 rounded-2xl object-cover"
+                unoptimized={avatarSrc?.startsWith('data:')}
               />
             ) : (
-              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-2xl font-semibold text-white">
+              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-accent to-info flex items-center justify-center text-2xl font-semibold text-white">
                 {initials}
               </div>
             )}
             {uploadingAvatar && (
               <div className="absolute inset-0 rounded-2xl bg-card/70 flex items-center justify-center">
-                <svg className="h-5 w-5 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 animate-spin text-accent" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
@@ -200,9 +222,19 @@ export default function SettingsPage() {
             </label>
             <p className="text-sm text-muted capitalize">{profile?.role}</p>
           </div>
-          <Button type="submit" disabled={saving}>
-            {saving ? 'Guardando...' : 'Guardar Cambios'}
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button type="submit" disabled={saving}>
+              {saving ? 'Guardando...' : 'Guardar Cambios'}
+            </Button>
+            {profileSaved && (
+              <span className="text-xs text-success font-medium flex items-center gap-1">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Guardado
+              </span>
+            )}
+          </div>
         </form>
       </Card>
 
@@ -212,13 +244,33 @@ export default function SettingsPage() {
           Cambiar Contraseña
         </h2>
         <form onSubmit={handlePasswordSubmit} className="space-y-4">
-          <Input
-            label="Nueva contraseña"
-            name="new_password"
-            type="password"
-            required
-            placeholder="Mínimo 6 caracteres"
-          />
+          <div>
+            <Input
+              label="Nueva contraseña"
+              name="new_password"
+              type="password"
+              required
+              placeholder="Mínimo 8 caracteres, una mayúscula y un número"
+              onChange={(e) => setPasswordValue(e.target.value)}
+            />
+            {passwordValue && (
+              <div className="mt-2">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className={`h-1 flex-1 rounded-full transition-colors ${
+                        i <= passwordStrength(passwordValue).level
+                          ? passwordStrength(passwordValue).color
+                          : 'bg-muted-bg'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-muted mt-1">{passwordStrength(passwordValue).label}</p>
+              </div>
+            )}
+          </div>
           <Input
             label="Confirmar contraseña"
             name="confirm_password"

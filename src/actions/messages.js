@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import DOMPurify from 'isomorphic-dompurify'
 
 const CONN_ERROR = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -55,8 +56,10 @@ export async function sendMessageAction({ contenido, taskId = null, isSoporte = 
     } = await supabase.auth.getUser()
     if (!user) return { error: 'No autenticado' }
 
+    const sanitized = DOMPurify.sanitize((contenido || '').trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] })
+
     const messageData = {
-      contenido: (contenido || '').trim() || '',
+      contenido: sanitized,
       remitente_id: user.id,
       es_soporte: isSoporte,
       ...(taskId ? { tarea_id: taskId } : {}),

@@ -28,12 +28,22 @@ export default function RootLayout({ children }) {
           {children}
           <Toaster
             position="top-right"
+            containerStyle={{ zIndex: 9999 }}
             toastOptions={{
               duration: 4000,
               style: {
                 borderRadius: '12px',
                 padding: '12px 16px',
                 fontSize: '14px',
+                background: 'var(--card-bg)',
+                color: 'var(--foreground)',
+                border: '1px solid var(--border)',
+              },
+              success: {
+                iconTheme: { primary: 'var(--success)', secondary: 'white' },
+              },
+              error: {
+                iconTheme: { primary: 'var(--danger)', secondary: 'white' },
               },
             }}
           />

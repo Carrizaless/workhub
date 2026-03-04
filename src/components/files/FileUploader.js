@@ -12,14 +12,18 @@ export default function FileUploader({ taskId, existingFiles = [], onUpload }) {
 
   const handleFiles = useCallback(
     async (files) => {
-      for (const file of files) {
-        const path = await upload(file)
-        if (path) {
-          const newFiles = [...existingFiles, { path, name: file.name, type: file.type }]
-          await updateTaskFiles(taskId, newFiles)
-          onUpload?.(newFiles)
-          toast.success(`${file.name} subido exitosamente`)
-        }
+      const results = await Promise.all(
+        Array.from(files).map(async (file) => {
+          const path = await upload(file)
+          return path ? { path, name: file.name, type: file.type } : null
+        })
+      )
+      const uploaded = results.filter(Boolean)
+      if (uploaded.length > 0) {
+        const newFiles = [...existingFiles, ...uploaded]
+        await updateTaskFiles(taskId, newFiles)
+        onUpload?.(newFiles)
+        toast.success(`${uploaded.length} archivo${uploaded.length !== 1 ? 's' : ''} subido${uploaded.length !== 1 ? 's' : ''} exitosamente`)
       }
     },
     [upload, existingFiles, taskId, onUpload]
@@ -29,13 +33,13 @@ export default function FileUploader({ taskId, existingFiles = [], onUpload }) {
     e.preventDefault()
     setDragOver(false)
     if (e.dataTransfer.files.length > 0) {
-      handleFiles(Array.from(e.dataTransfer.files))
+      handleFiles(e.dataTransfer.files)
     }
   }
 
   function handleChange(e) {
     if (e.target.files.length > 0) {
-      handleFiles(Array.from(e.target.files))
+      handleFiles(e.target.files)
     }
   }
 
@@ -48,10 +52,12 @@ export default function FileUploader({ taskId, existingFiles = [], onUpload }) {
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
+        role="button"
+        aria-label="Arrastra archivos o haz clic para seleccionar"
         className={`relative rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
           dragOver
-            ? 'border-blue-400 bg-blue-50'
-            : 'border-gray-200 hover:border-gray-300'
+            ? 'border-accent bg-accent-subtle'
+            : 'border-border hover:border-muted'
         }`}
       >
         <input
@@ -61,10 +67,11 @@ export default function FileUploader({ taskId, existingFiles = [], onUpload }) {
           accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           disabled={uploading}
+          aria-label="Seleccionar archivos"
         />
         <div className="space-y-2">
           <svg
-            className="mx-auto h-8 w-8 text-gray-400"
+            className="mx-auto h-8 w-8 text-muted"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
@@ -76,12 +83,12 @@ export default function FileUploader({ taskId, existingFiles = [], onUpload }) {
               d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
             />
           </svg>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted">
             {uploading
               ? 'Subiendo...'
               : 'Arrastra archivos aqui o haz clic para seleccionar'}
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted">
             PDF, Word, PNG, JPG (max 50MB)
           </p>
         </div>
@@ -90,12 +97,12 @@ export default function FileUploader({ taskId, existingFiles = [], onUpload }) {
       {uploading && (
         <div className="mt-3">
           <ProgressBar value={progress} />
-          <p className="mt-1 text-xs text-gray-500 text-center">{progress}%</p>
+          <p className="mt-1 text-xs text-muted text-center">{progress}%</p>
         </div>
       )}
 
       {error && (
-        <p className="mt-2 text-xs text-red-600">{error}</p>
+        <p className="mt-2 text-xs text-danger">{error}</p>
       )}
     </div>
   )

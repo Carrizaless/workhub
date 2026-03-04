@@ -5,8 +5,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 const CONN_ERROR = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.'
-const ALLOWED_EXTS = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg']
-const ALLOWED_BUCKETS = ['task-attachments']
+const ALLOWED_EXTS = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'webp', 'gif']
+const ALLOWED_BUCKETS = ['task-attachments', 'avatares']
 
 function getExtension(path) {
   return (path || '').split('.').pop()?.toLowerCase()

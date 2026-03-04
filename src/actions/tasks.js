@@ -230,10 +230,17 @@ export async function getAllTasks() {
   const supabase = await createClient()
 
   try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autenticado', data: [] }
+
+    // Only fetch tasks relevant to this collaborator: unassigned + assigned to them
     const { data, error } = await supabase
       .from('tasks')
       .select('*, asignado:users!asignado_a(id, nombre, email)')
+      .or(`asignado_a.is.null,asignado_a.eq.${user.id},estado.eq.aceptada,estado.eq.en_revision,estado.eq.en_correccion`)
+      .not('estado', 'eq', 'aprobada')
       .order('created_at', { ascending: false })
+      .limit(200)
 
     if (error) return { error: error.message }
     return { data: data || [] }

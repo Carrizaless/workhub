@@ -13,16 +13,18 @@ const filters = [
 
 export default function TaskFilters({ active, onChange }) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1">
+    <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Filtrar tareas por estado">
       {filters.map((filter) => (
         <button
           key={filter.value}
           onClick={() => onChange(filter.value)}
+          role="tab"
+          aria-selected={active === filter.value}
           className={clsx(
-            'shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+            'shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
             active === filter.value
-              ? 'bg-gray-900 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? 'bg-accent text-white shadow-sm shadow-accent/25'
+              : 'bg-muted-bg text-muted hover:bg-border hover:text-foreground'
           )}
         >
           {filter.label}

@@ -43,8 +43,11 @@ export async function changePassword(formData) {
     return { error: 'Las contraseñas no coinciden' }
   }
 
-  if (newPassword.length < 6) {
-    return { error: 'La contraseña debe tener al menos 6 caracteres' }
+  if (newPassword.length < 8) {
+    return { error: 'La contraseña debe tener al menos 8 caracteres' }
+  }
+  if (!/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+    return { error: 'La contraseña debe incluir al menos una mayúscula y un número' }
   }
 
   try {
@@ -109,8 +112,11 @@ export async function createCollaborator(formData) {
     if (!email || !password) {
       return { error: 'Correo y contraseña son obligatorios' }
     }
-    if (password.length < 6) {
-      return { error: 'La contraseña debe tener al menos 6 caracteres' }
+    if (password.length < 8) {
+      return { error: 'La contraseña debe tener al menos 8 caracteres' }
+    }
+    if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      return { error: 'La contraseña debe incluir al menos una mayúscula y un número' }
     }
 
     const admin = createAdminClient()
@@ -154,9 +160,14 @@ export async function updateBinanceId(binanceId) {
     } = await supabase.auth.getUser()
     if (!user) return { error: 'No autenticado' }
 
+    const trimmed = binanceId?.trim() || null
+    if (trimmed && (trimmed.length > 255 || !/^[a-zA-Z0-9@._\-]+$/.test(trimmed))) {
+      return { error: 'ID de Binance inválido. Solo letras, números, @, punto, guión.' }
+    }
+
     const { error } = await supabase
       .from('users')
-      .update({ binance_id: binanceId?.trim() || null })
+      .update({ binance_id: trimmed })
       .eq('id', user.id)
 
     if (error) return { error: error.message }

@@ -1,14 +1,15 @@
+import { memo } from 'react'
 import { formatRelative } from '@/lib/utils'
 import clsx from 'clsx'
 
-export default function ChatMessage({ message, isOwn, onDownload }) {
+const ChatMessage = memo(function ChatMessage({ message, isOwn, onDownload }) {
   const sender = message.remitente
   const displayName = sender?.nombre || sender?.email?.split('@')[0] || 'Usuario'
   const archivos = message.archivos || []
   const hasText = message.contenido && message.contenido.trim()
 
   return (
-    <div className={clsx('flex gap-3', isOwn && 'flex-row-reverse')}>
+    <div className={clsx('flex gap-3', isOwn && 'flex-row-reverse')} role="article" aria-label={`Mensaje de ${isOwn ? 'ti' : displayName}`}>
       <div
         className={clsx(
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium',
@@ -16,6 +17,7 @@ export default function ChatMessage({ message, isOwn, onDownload }) {
             ? 'bg-accent text-white'
             : 'bg-muted-bg text-muted'
         )}
+        aria-hidden="true"
       >
         {displayName[0]?.toUpperCase()}
       </div>
@@ -60,7 +62,9 @@ export default function ChatMessage({ message, isOwn, onDownload }) {
       </div>
     </div>
   )
-}
+})
+
+export default ChatMessage
 
 function AttachmentCard({ file, isOwn, onDownload }) {
   const isImage = file.type?.startsWith('image/')
@@ -69,6 +73,7 @@ function AttachmentCard({ file, isOwn, onDownload }) {
   return (
     <button
       onClick={() => onDownload?.(file)}
+      aria-label={`Descargar ${file.name}`}
       className={clsx(
         'flex items-center gap-2.5 rounded-xl border px-3 py-2 text-left transition-colors w-full max-w-[260px]',
         isOwn
@@ -78,9 +83,9 @@ function AttachmentCard({ file, isOwn, onDownload }) {
     >
       <span className={clsx(
         'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold',
-        isPdf ? 'bg-red-50 text-red-600' :
-        isImage ? 'bg-green-50 text-green-600' :
-        'bg-blue-50 text-blue-600'
+        isPdf ? 'bg-danger-light text-danger' :
+        isImage ? 'bg-success-light text-success' :
+        'bg-accent-subtle text-accent'
       )}>
         {isPdf ? 'PDF' : isImage ? 'IMG' : 'DOC'}
       </span>
@@ -103,6 +108,7 @@ function AttachmentCard({ file, isOwn, onDownload }) {
         viewBox="0 0 24 24"
         strokeWidth={2}
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
       </svg>
