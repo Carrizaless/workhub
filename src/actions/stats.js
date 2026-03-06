@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { unstable_cache } from 'next/cache'
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -13,7 +12,7 @@ import { es } from 'date-fns/locale'
  * - approved tasks per month (last 6 months) → for chart
  * - top 3 collaborators by approved tasks
  */
-async function _getAdminStats() {
+export async function getAdminStats() {
   try {
     const supabase = await createClient()
 
@@ -107,18 +106,10 @@ async function _getAdminStats() {
   }
 }
 
-export async function getAdminStats() {
-  return unstable_cache(
-    _getAdminStats,
-    ['admin-stats'],
-    { revalidate: 300 } // 5 minutes
-  )()
-}
-
 /**
  * Collaborator dashboard data: active tasks, available tasks, personal stats
  */
-async function _getCollaboratorDashboardData(userId) {
+export async function getCollaboratorDashboardData(userId) {
   if (!userId) return { error: 'No userId' }
 
   try {
@@ -176,21 +167,13 @@ async function _getCollaboratorDashboardData(userId) {
   }
 }
 
-export async function getCollaboratorDashboardData(userId) {
-  return unstable_cache(
-    () => _getCollaboratorDashboardData(userId),
-    [`collab-dashboard-${userId}`],
-    { revalidate: 120 } // 2 minutes
-  )()
-}
-
 /**
  * Collaborator personal stats:
  * - completadas (approved tasks assigned to them)
  * - totalGanado (sum of their credit transactions)
  * - avgRating (average of their rated approved tasks)
  */
-async function _getCollaboratorStats(userId) {
+export async function getCollaboratorStats(userId) {
   if (!userId) return { error: 'No userId' }
 
   try {
@@ -231,12 +214,4 @@ async function _getCollaboratorStats(userId) {
     console.error('getCollaboratorStats error:', e)
     return { error: 'Error al cargar estadísticas' }
   }
-}
-
-export async function getCollaboratorStats(userId) {
-  return unstable_cache(
-    () => _getCollaboratorStats(userId),
-    [`collab-stats-${userId}`],
-    { revalidate: 120 }
-  )()
 }
