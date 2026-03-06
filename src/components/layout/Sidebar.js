@@ -21,7 +21,7 @@ const adminLinks = [
 
 const collaboratorLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: HomeIcon },
-  { href: '/tasks', label: 'Tareas', icon: TaskIcon },
+  { href: '/tasks', label: 'Marketplace', icon: TaskIcon },
   { href: '/chat', label: 'Mensajes', icon: ChatIcon },
   { href: '/wallet', label: 'Mi Billetera', icon: WalletIcon },
   { href: '/blog', label: 'Blog', icon: BookIcon },

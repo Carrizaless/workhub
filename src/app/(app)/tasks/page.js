@@ -135,7 +135,7 @@ export default function TasksPage() {
   return (
     <div className="space-y-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-foreground">Tareas</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Marketplace</h1>
       </div>
 
       {loading ? (
