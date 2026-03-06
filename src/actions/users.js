@@ -6,6 +6,14 @@ import { revalidatePath } from 'next/cache'
 
 const CONN_ERROR = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.'
 
+/** Reusable auth + role check to avoid redundant queries */
+async function getAuthWithRole(supabase) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+  return { user, role: profile?.role }
+}
+
 export async function updateProfile(formData) {
   const supabase = await createClient()
 
@@ -89,19 +97,9 @@ export async function createCollaborator(formData) {
   const supabase = await createClient()
 
   try {
-    // Verify current user is admin
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return { error: 'No autenticado' }
-
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.role !== 'admin') {
+    const auth = await getAuthWithRole(supabase)
+    if (auth.error) return { error: auth.error }
+    if (auth.role !== 'admin') {
       return { error: 'Solo los administradores pueden crear colaboradores' }
     }
 
@@ -229,18 +227,10 @@ export async function getChatUsers() {
   const supabase = await createClient()
 
   try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return { error: 'No autenticado' }
+    const auth = await getAuthWithRole(supabase)
+    if (auth.error) return { error: auth.error }
 
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.role === 'admin') {
+    if (auth.role === 'admin') {
       // Admin sees list of collaborators
       const { data, error } = await supabase
         .from('users')
@@ -273,19 +263,9 @@ export async function deleteCollaborator(collaboratorId) {
   const supabase = await createClient()
 
   try {
-    // Verify requester is admin
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return { error: 'No autenticado' }
-
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.role !== 'admin') {
+    const auth = await getAuthWithRole(supabase)
+    if (auth.error) return { error: auth.error }
+    if (auth.role !== 'admin') {
       return { error: 'Solo los administradores pueden eliminar colaboradores' }
     }
 

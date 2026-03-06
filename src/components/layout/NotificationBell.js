@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { markAllAsRead } from '@/actions/messages'
 import { formatRelative } from '@/lib/utils'
@@ -8,6 +8,7 @@ import Link from 'next/link'
 
 export default function NotificationBell({ userId }) {
   const [open, setOpen] = useState(false)
+  const handleClose = useCallback(() => setOpen(false), [])
   const { notifications, unreadCount, clearUnread, refresh } = useNotifications(userId)
   const panelRef = useRef(null)
 
@@ -103,7 +104,7 @@ export default function NotificationBell({ userId }) {
             ) : (
               <ul className="divide-y divide-border/50">
                 {notifications.map((n) => (
-                  <NotificationItem key={n.id} notification={n} onClose={() => setOpen(false)} />
+                  <NotificationItem key={n.id} notification={n} onClose={handleClose} />
                 ))}
               </ul>
             )}
@@ -114,7 +115,7 @@ export default function NotificationBell({ userId }) {
   )
 }
 
-function NotificationItem({ notification: n, onClose }) {
+const NotificationItem = memo(function NotificationItem({ notification: n, onClose }) {
   const content = (
     <div
       className={`flex gap-3 px-4 py-3 hover:bg-muted-bg/60 transition-colors cursor-pointer ${
@@ -165,4 +166,4 @@ function NotificationItem({ notification: n, onClose }) {
   }
 
   return <li>{content}</li>
-}
+})

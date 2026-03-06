@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import Link from 'next/link'
 import Card from '@/components/ui/Card'
 import TaskStatusBadge from './TaskStatusBadge'
@@ -26,7 +27,7 @@ function DeadlineIcon({ status }) {
  * isAdmin / isAssignedToMe control which state label is shown on the badge.
  * task.asignado should be { nombre, email } if joined in the query.
  */
-export default function TaskCard({ task, isAdmin = false, isAssignedToMe = false }) {
+const TaskCard = memo(function TaskCard({ task, isAdmin = false, isAssignedToMe = false }) {
   const deadlineStatus = task.estado !== 'aprobada' ? getDeadlineStatus(task.fecha_limite) : 'normal'
   const assigneeName = task.asignado?.nombre || task.asignado?.email || null
 
@@ -91,4 +92,6 @@ export default function TaskCard({ task, isAdmin = false, isAssignedToMe = false
       </Card>
     </Link>
   )
-}
+})
+
+export default TaskCard

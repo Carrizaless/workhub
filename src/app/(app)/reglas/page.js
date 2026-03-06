@@ -1,3 +1,5 @@
+export const dynamic = 'force-static'
+
 export default function ReglasPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8">

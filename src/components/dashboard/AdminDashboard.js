@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getAdminStats } from '@/actions/stats'
 import StatsCard from './StatsCard'
 import { formatCurrency } from '@/lib/utils'
@@ -42,7 +42,8 @@ export default function AdminDashboard() {
     return <AppLoader />
   }
 
-  const maxMonth = Math.max(...stats.months.map((m) => m.count), 1)
+  const maxMonth = useMemo(() => Math.max(...stats.months.map((m) => m.count), 1), [stats.months])
+  const activeTopColabs = useMemo(() => stats.topColabs.filter((c) => c.completadas > 0), [stats.topColabs])
 
   return (
     <div className="space-y-6">
@@ -117,13 +118,13 @@ export default function AdminDashboard() {
       </div>
 
       {/* Top collaborators */}
-      {stats.topColabs.some((c) => c.completadas > 0) && (
+      {activeTopColabs.length > 0 && (
         <div className="rounded-2xl border border-border bg-card shadow-sm transition-all duration-200">
           <div className="border-b border-border px-6 py-4">
             <h2 className="text-sm font-medium text-foreground">Top Colaboradores</h2>
           </div>
           <div className="divide-y divide-border">
-            {stats.topColabs.filter((c) => c.completadas > 0).map((c, i) => (
+            {activeTopColabs.map((c, i) => (
               <div key={c.id} className="flex items-center justify-between px-6 py-3">
                 <div className="flex items-center gap-3">
                   <span className={clsx(

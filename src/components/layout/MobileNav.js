@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@/contexts/UserContext'
-import { useUnreadDMs } from '@/hooks/useUnreadCount'
+import { useUnreadCounts } from '@/hooks/useUnreadCount'
 import LogoutButton from '@/components/auth/LogoutButton'
 import clsx from 'clsx'
 
@@ -33,7 +33,7 @@ export default function MobileNav({ open, onClose }) {
   const pathname = usePathname()
   const { user, profile, isAdmin } = useUser()
   const links = isAdmin ? adminLinks : collaboratorLinks
-  const dmCount = useUnreadDMs(user?.id)
+  const { dms: dmCount } = useUnreadCounts(user?.id)
   const initials = (profile?.nombre?.[0] || profile?.email?.[0] || '?').toUpperCase()
 
   if (!open) return null

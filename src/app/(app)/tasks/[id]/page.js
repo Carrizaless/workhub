@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import { useParams, useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/UserContext'
 import Card from '@/components/ui/Card'
@@ -9,10 +10,11 @@ import TaskStatusBadge from '@/components/tasks/TaskStatusBadge'
 import TaskStatusActions from '@/components/tasks/TaskStatusActions'
 import FileUploader from '@/components/files/FileUploader'
 import FileList from '@/components/files/FileList'
-import ChatPanel from '@/components/chat/ChatPanel'
-import TaskHistory from '@/components/tasks/TaskHistory'
-import TaskRating from '@/components/tasks/TaskRating'
 import Link from 'next/link'
+
+const ChatPanel = dynamic(() => import('@/components/chat/ChatPanel'), { ssr: false })
+const TaskHistory = dynamic(() => import('@/components/tasks/TaskHistory'), { ssr: false })
+const TaskRating = dynamic(() => import('@/components/tasks/TaskRating'), { ssr: false })
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils'
 import { getTask, deleteTask, rateTask } from '@/actions/tasks'
 import toast from 'react-hot-toast'
