@@ -11,15 +11,11 @@ import Button from '@/components/ui/Button'
 
 const PAGE_SIZE = 12
 
+import AppLoader from '@/components/ui/AppLoader'
+
 // ─── Skeleton loader ──────────────────────────────────────────
-function GridSkeleton({ count = 6 }) {
-  return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="h-44 animate-pulse rounded-2xl bg-muted-bg" />
-      ))}
-    </div>
-  )
+function GridSkeleton() {
+  return <AppLoader />
 }
 
 // ─── Section header for collaborator view ─────────────────────

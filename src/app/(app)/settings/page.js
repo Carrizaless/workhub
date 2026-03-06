@@ -8,6 +8,7 @@ import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
+import AppLoader from '@/components/ui/AppLoader'
 
 export default function SettingsPage() {
   const { user, profile, loading } = useUser()
@@ -131,13 +132,7 @@ export default function SettingsPage() {
   }
 
   if (loading) {
-    return (
-      <div className="mx-auto max-w-2xl space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded-xl bg-muted-bg" />
-        <div className="h-48 animate-pulse rounded-2xl bg-muted-bg" />
-        <div className="h-48 animate-pulse rounded-2xl bg-muted-bg" />
-      </div>
-    )
+    return <AppLoader />
   }
 
   const avatarSrc = avatarPreview || profile?.avatar_url

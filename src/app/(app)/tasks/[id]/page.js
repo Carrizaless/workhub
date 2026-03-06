@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils'
 import { getTask, deleteTask, rateTask } from '@/actions/tasks'
 import toast from 'react-hot-toast'
+import AppLoader from '@/components/ui/AppLoader'
 
 export default function TaskDetailPage() {
   const { id } = useParams()
@@ -82,12 +83,7 @@ export default function TaskDetailPage() {
   }
 
   if (loading || userLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-8 w-64 animate-pulse rounded-xl bg-muted-bg" />
-        <div className="h-64 animate-pulse rounded-2xl bg-muted-bg" />
-      </div>
-    )
+    return <AppLoader />
   }
 
   if (!task) {

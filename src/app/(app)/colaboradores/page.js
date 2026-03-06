@@ -10,6 +10,7 @@ import Input from '@/components/ui/Input'
 import Modal from '@/components/ui/Modal'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import AppLoader from '@/components/ui/AppLoader'
 
 export default function ColaboradoresPage() {
   const { isAdmin, loading: userLoading } = useUser()
@@ -80,16 +81,7 @@ export default function ColaboradoresPage() {
   const confirmTarget = colaboradores.find((c) => c.id === confirmDeleteId)
 
   if (loading || userLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 w-52 animate-pulse rounded-xl bg-muted-bg" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 animate-pulse rounded-2xl bg-muted-bg" />
-          ))}
-        </div>
-      </div>
-    )
+    return <AppLoader />
   }
 
   return (

@@ -8,6 +8,7 @@ import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import { STATE_COLORS, STATE_LABELS } from '@/lib/constants'
 import Badge from '@/components/ui/Badge'
+import AppLoader from '@/components/ui/AppLoader'
 
 export default function CollaboratorDashboard() {
   const { user, profile } = useUser()
@@ -55,13 +56,7 @@ export default function CollaboratorDashboard() {
   }, [user, profile])
 
   if (!stats) {
-    return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted-bg" />
-        ))}
-      </div>
-    )
+    return <AppLoader />
   }
 
   return (

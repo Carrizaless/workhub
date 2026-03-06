@@ -9,6 +9,7 @@ import TransactionTable from '@/components/wallet/TransactionTable'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
+import AppLoader from '@/components/ui/AppLoader'
 
 export default function WalletPage() {
   const { user, profile, isAdmin, loading: userLoading } = useUser()
@@ -59,13 +60,7 @@ export default function WalletPage() {
   }
 
   if (userLoading || loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 w-40 animate-pulse rounded-xl bg-muted-bg" />
-        <div className="h-32 animate-pulse rounded-2xl bg-muted-bg" />
-        <div className="h-64 animate-pulse rounded-2xl bg-muted-bg" />
-      </div>
-    )
+    return <AppLoader />
   }
 
   return (

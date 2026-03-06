@@ -7,6 +7,7 @@ import { getChatUsers } from '@/actions/users'
 import ChatPanel from '@/components/chat/ChatPanel'
 import Card from '@/components/ui/Card'
 import clsx from 'clsx'
+import AppLoader from '@/components/ui/AppLoader'
 
 export default function ChatPage() {
   const { user, isAdmin, loading } = useUser()
@@ -46,12 +47,7 @@ export default function ChatPage() {
   }, [user, isAdmin, loading])
 
   if (loading || loadingUsers) {
-    return (
-      <div className="space-y-4">
-        <div className="h-8 w-40 animate-pulse rounded-xl bg-muted-bg" />
-        <div className="h-96 animate-pulse rounded-2xl bg-muted-bg" />
-      </div>
-    )
+    return <AppLoader />
   }
 
   // --- Collaborator view: single conversation with admin ---

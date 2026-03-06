@@ -3,24 +3,13 @@
 import { useUser } from '@/contexts/UserContext'
 import AdminDashboard from '@/components/dashboard/AdminDashboard'
 import CollaboratorDashboard from '@/components/dashboard/CollaboratorDashboard'
+import AppLoader from '@/components/ui/AppLoader'
 
 export default function DashboardPage() {
   const { user, profile, loading, isAdmin } = useUser()
 
   if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-8 w-48 animate-pulse rounded-xl bg-muted-bg" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-28 animate-pulse rounded-2xl bg-muted-bg"
-            />
-          ))}
-        </div>
-      </div>
-    )
+    return <AppLoader />
   }
 
   // Debug: show auth state when user is null (helps diagnose production issues)

@@ -9,7 +9,12 @@ import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import DOMPurify from 'isomorphic-dompurify'
+import AppLoader from '@/components/ui/AppLoader'
+
+function sanitizeHtml(html) {
+  if (!html) return ''
+  return html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/on\w+="[^"]*"/gi, '')
+}
 
 export default function BlogPostPage() {
   const { id } = useParams()
@@ -46,12 +51,7 @@ export default function BlogPostPage() {
   }
 
   if (loading) {
-    return (
-      <div className="mx-auto max-w-2xl space-y-4">
-        <div className="h-8 w-64 animate-pulse rounded-xl bg-muted-bg" />
-        <div className="h-96 animate-pulse rounded-2xl bg-muted-bg" />
-      </div>
-    )
+    return <AppLoader />
   }
 
   if (!post) {
@@ -124,7 +124,7 @@ export default function BlogPostPage() {
           <hr className="border-border" />
           <div
             className="blog-html"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.contenido) }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.contenido) }}
           />
         </div>
       </Card>

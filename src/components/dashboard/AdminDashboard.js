@@ -7,6 +7,7 @@ import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import Button from '@/components/ui/Button'
 import clsx from 'clsx'
+import AppLoader from '@/components/ui/AppLoader'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
@@ -38,16 +39,7 @@ export default function AdminDashboard() {
   }, [])
 
   if (!stats) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted-bg" />
-          ))}
-        </div>
-        <div className="h-48 animate-pulse rounded-2xl bg-muted-bg" />
-      </div>
-    )
+    return <AppLoader />
   }
 
   const maxMonth = Math.max(...stats.months.map((m) => m.count), 1)
