@@ -38,12 +38,12 @@ export default function AdminDashboard() {
     loadStats()
   }, [])
 
+  const maxMonth = useMemo(() => stats ? Math.max(...stats.months.map((m) => m.count), 1) : 1, [stats])
+  const activeTopColabs = useMemo(() => stats ? stats.topColabs.filter((c) => c.completadas > 0) : [], [stats])
+
   if (!stats) {
     return <AppLoader />
   }
-
-  const maxMonth = useMemo(() => Math.max(...stats.months.map((m) => m.count), 1), [stats.months])
-  const activeTopColabs = useMemo(() => stats.topColabs.filter((c) => c.completadas > 0), [stats.topColabs])
 
   return (
     <div className="space-y-6">
